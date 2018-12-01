@@ -51,27 +51,8 @@ impl Component<Context> for GameModel {
     fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> bool {
         match msg {
             GameMessage::Animate => {
-                if self.canvas.is_none() {
-                    match document().query_selector("#canvas") {
-                        Ok(Some(canvas)) => {
-                            let canvas: CanvasElement = canvas.try_into().unwrap();
-                            let ctx: CanvasRenderingContext2d = canvas.get_context().unwrap();
-                            self.canvas = Some(canvas);
-                            self.ctx = Some(ctx);
-                            context.console.log("found canvas");
-                            ()
-                        },
-                        _ => (),
-                    }
-                }
-                match (&self.canvas, &self.ctx) {
-                    (Some(canvas), Some(ctx)) => {
-                        ctx.move_to(0.0, 0.0);
-                        ctx.line_to(800.0, 600.0);
-                        ctx.stroke();
-                    }
-                    _ => {}
-                }
+                self.setup_graphics();
+                self.ctx.as_mut().map(GameModel::render);
                 self.job = GameModel::animate(context);
                 false
             }
@@ -79,7 +60,6 @@ impl Component<Context> for GameModel {
     }
 
     fn change(&mut self, _: Self::Properties, context: &mut Env<Context, Self>) -> bool {
-        context.console.log("updating game model props");
         false
     }
 }
@@ -96,5 +76,26 @@ impl GameModel {
     fn animate(context: &mut Env<Context, Self>) -> Box<Task> {
         let send_back = context.send_back(|_| GameMessage::Animate);
         Box::new(context.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
+    }
+
+    fn setup_graphics(&mut self) {
+        if self.canvas.is_none() {
+            match document().query_selector("#canvas") {
+                Ok(Some(canvas)) => {
+                    let canvas: CanvasElement = canvas.try_into().unwrap();
+                    let ctx: CanvasRenderingContext2d = canvas.get_context().unwrap();
+                    self.canvas = Some(canvas);
+                    self.ctx = Some(ctx);
+                    ()
+                },
+                _ => (),
+            }
+        }
+    }
+
+    fn render(ctx: &mut CanvasRenderingContext2d) {
+        ctx.move_to(0.0, 0.0);
+        ctx.line_to(800.0, 600.0);
+        ctx.stroke();
     }
 }

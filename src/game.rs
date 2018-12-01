@@ -67,7 +67,7 @@ impl Component<Context> for GameModel {
 impl Renderable<Context, GameModel> for GameModel {
     fn view(&self) -> Html<Context, GameModel> {
         html! {
-          <canvas id="canvas", width=600, height=400,></canvas>
+          <canvas id="canvas", width=640, height=480,></canvas>
         }
     }
 }
@@ -95,7 +95,7 @@ impl GameModel {
 
     fn render(ctx: &mut CanvasRenderingContext2d) {
         ctx.move_to(0.0, 0.0);
-        ctx.line_to(800.0, 600.0);
+        ctx.line_to(640.0, 480.0);
         ctx.stroke();
     }
 }

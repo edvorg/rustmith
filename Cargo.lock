@@ -148,6 +148,7 @@ dependencies = [
 name = "rustmith"
 version = "0.1.0"
 dependencies = [
+ "stdweb 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

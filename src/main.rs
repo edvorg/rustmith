@@ -10,7 +10,7 @@ extern crate stdweb_derive;
 extern crate webgl_rendering_context;
 
 mod registry;
-mod paging;
+mod root;
 mod game;
 mod algebra;
 mod shaders;
@@ -26,7 +26,7 @@ fn main() {
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
     let registry = Registry { console, timeout };
-    let app = App::<Registry, paging::PagingModel>::new(registry);
+    let app = App::<Registry, root::RootModel>::new(registry);
     app.mount_to_body();
     yew::run_loop();
 }

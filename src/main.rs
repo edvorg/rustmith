@@ -9,7 +9,7 @@ extern crate stdweb_derive;
 #[macro_use]
 extern crate webgl_rendering_context;
 
-mod context;
+mod registry;
 mod paging;
 mod game;
 mod algebra;
@@ -19,14 +19,14 @@ mod renderer;
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
-use context::Context;
+use registry::Registry;
 
 fn main() {
     yew::initialize();
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
-    let context = Context { console, timeout };
-    let app = App::<Context, paging::PagingModel>::new(context);
+    let registry = Registry { console, timeout };
+    let app = App::<Registry, paging::PagingModel>::new(registry);
     app.mount_to_body();
     yew::run_loop();
 }

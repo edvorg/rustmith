@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use context::Context;
+use registry::Registry;
 use game;
 
 #[derive(Debug, PartialEq)]
@@ -17,17 +17,17 @@ pub struct PagingModel {
     page: Page
 }
 
-impl Component<Context> for PagingModel {
+impl Component<Registry> for PagingModel {
     type Message = PagingMessage;
     type Properties = ();
 
-    fn create(_props: Self::Properties, context: &mut Env<Context, Self>) -> Self {
-        context.console.log("creating paging model");
+    fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
+        env.console.log("creating paging model");
         PagingModel { page: Page::Logo }
     }
 
-    fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> bool {
-        context.console.log("updating paging model");
+    fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
+        env.console.log("updating paging model");
         match msg {
             PagingMessage::SwitchPage(page) => {
                 if page == self.page {
@@ -38,7 +38,7 @@ impl Component<Context> for PagingModel {
                 }
             },
             PagingMessage::GameSignal => {
-                context.console.log("received game signal");
+                env.console.log("received game signal");
                 false
             },
         }
@@ -46,7 +46,7 @@ impl Component<Context> for PagingModel {
 }
 
 impl PagingModel {
-    fn buttons_view(&self) -> Html<Context, Self> {
+    fn buttons_view(&self) -> Html<Registry, Self> {
         html! {
         <>
           <button onclick = |_| PagingMessage::SwitchPage(Page::Game) ,> { "game" } </button>
@@ -55,7 +55,7 @@ impl PagingModel {
         }
     }
 
-    fn page_view(&self) -> Html<Context, Self> {
+    fn page_view(&self) -> Html<Registry, Self> {
         match self.page {
             Page::Logo =>
                 html! { <div> { "logo" } </div> },
@@ -65,8 +65,8 @@ impl PagingModel {
     }
 }
 
-impl Renderable<Context, PagingModel> for PagingModel {
-    fn view(&self) -> Html<Context, Self> {
+impl Renderable<Registry, PagingModel> for PagingModel {
+    fn view(&self) -> Html<Registry, Self> {
         html! {
         <div>
           { self.page_view() }

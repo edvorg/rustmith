@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use context::Context;
+use registry::Registry;
 use std::time::Duration;
 use yew::services::Task;
 use stdweb::web::{
@@ -29,7 +29,7 @@ pub struct GameModel {
 
 #[derive(PartialEq, Clone)]
 pub struct GameProps {
-    pub onsignal: Option<Callback<Context>>,
+    pub onsignal: Option<Callback<Registry>>,
 }
 
 impl Default for GameProps {
@@ -40,11 +40,11 @@ impl Default for GameProps {
     }
 }
 
-impl Component<Context> for GameModel {
+impl Component<Registry> for GameModel {
     type Message = GameMessage;
     type Properties = GameProps;
 
-    fn create(_props: Self::Properties, env: &mut Env<Context, Self>) -> Self {
+    fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
         GameModel {
             job: GameModel::animate(env),
@@ -54,7 +54,7 @@ impl Component<Context> for GameModel {
         }
     }
 
-    fn update(&mut self, msg: Self::Message, env: &mut Env<Context, Self>) -> bool {
+    fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
         match msg {
             GameMessage::Animate => {
                 let now = Date::now();
@@ -69,13 +69,13 @@ impl Component<Context> for GameModel {
         }
     }
 
-    fn change(&mut self, _: Self::Properties, _env: &mut Env<Context, Self>) -> bool {
+    fn change(&mut self, _: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
         false
     }
 }
 
-impl Renderable<Context, GameModel> for GameModel {
-    fn view(&self) -> Html<Context, GameModel> {
+impl Renderable<Registry, GameModel> for GameModel {
+    fn view(&self) -> Html<Registry, GameModel> {
         html! {
           <canvas id="canvas", width=640, height=480,></canvas>
         }
@@ -83,12 +83,12 @@ impl Renderable<Context, GameModel> for GameModel {
 }
 
 impl GameModel {
-    fn animate(env: &mut Env<Context, Self>) -> Box<Task> {
+    fn animate(env: &mut Env<Registry, Self>) -> Box<Task> {
         let send_back = env.send_back(|_| GameMessage::Animate);
         Box::new(env.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
     }
 
-    fn setup_graphics(&mut self, env: &mut Env<Context, Self>) {
+    fn setup_graphics(&mut self, env: &mut Env<Registry, Self>) {
         if self.canvas.is_none() {
             env.console.log("Setting up graphics context");
             match document().query_selector("#canvas") {

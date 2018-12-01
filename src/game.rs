@@ -5,10 +5,15 @@ use yew::services::Task;
 use stdweb::web::{
     document,
     IParentNode,
-    CanvasRenderingContext2d,
 };
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
+
+use webgl_rendering_context::{
+    WebGLRenderingContext as gl,
+    WebGLUniformLocation,
+    WebGLBuffer
+};
 
 pub enum GameMessage {
     Animate,
@@ -18,7 +23,7 @@ pub struct GameModel {
     onsignal: Option<Callback<Context>>,
     job: Box<Task>,
     canvas: Option<CanvasElement>,
-    ctx: Option<CanvasRenderingContext2d>,
+    ctx: Option<gl>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -51,7 +56,7 @@ impl Component<Context> for GameModel {
     fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> bool {
         match msg {
             GameMessage::Animate => {
-                self.setup_graphics();
+                self.setup_graphics(context);
                 self.ctx.as_mut().map(GameModel::render);
                 self.job = GameModel::animate(context);
                 false
@@ -78,12 +83,16 @@ impl GameModel {
         Box::new(context.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
     }
 
-    fn setup_graphics(&mut self) {
+    fn setup_graphics(&mut self, context: &mut Env<Context, Self>) {
         if self.canvas.is_none() {
+            context.console.log("Setting up graphics context");
             match document().query_selector("#canvas") {
                 Ok(Some(canvas)) => {
                     let canvas: CanvasElement = canvas.try_into().unwrap();
-                    let ctx: CanvasRenderingContext2d = canvas.get_context().unwrap();
+                    let ctx: gl = canvas.get_context().unwrap();
+                    context.console.log("Graphics context inititalized");
+                    ctx.clear_color(1.0, 0.0, 0.0, 1.0);
+                    ctx.clear(gl::COLOR_BUFFER_BIT);
                     self.canvas = Some(canvas);
                     self.ctx = Some(ctx);
                     ()
@@ -93,9 +102,7 @@ impl GameModel {
         }
     }
 
-    fn render(ctx: &mut CanvasRenderingContext2d) {
-        ctx.move_to(0.0, 0.0);
-        ctx.line_to(640.0, 480.0);
-        ctx.stroke();
+    fn render(ctx: &mut gl) {
+        ctx.clear(gl::COLOR_BUFFER_BIT);
     }
 }

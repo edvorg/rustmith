@@ -148,7 +148,11 @@ dependencies = [
 name = "rustmith"
 version = "0.1.0"
 dependencies = [
+ "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "stdweb-derive 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "webgl-rendering-context 0.2.0",
  "yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -266,6 +270,16 @@ dependencies = [
 name = "unicode-xid"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "webgl-rendering-context"
+version = "0.2.0"
+dependencies = [
+ "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
+ "stdweb 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "stdweb-derive 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "winapi"

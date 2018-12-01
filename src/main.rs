@@ -1,8 +1,13 @@
 #[macro_use]
 extern crate stdweb;
-
 #[macro_use]
 extern crate yew;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate stdweb_derive;
+#[macro_use]
+extern crate webgl_rendering_context;
 
 mod context;
 mod paging;
@@ -12,7 +17,6 @@ use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
 use context::Context;
-use std::time::Duration;
 
 fn main() {
     yew::initialize();

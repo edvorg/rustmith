@@ -1,0 +1,3 @@
+[submodule "webgl-rendering-context"]
+	path = webgl-rendering-context
+	url = git@github.com:edvorg/webgl-rendering-context.git

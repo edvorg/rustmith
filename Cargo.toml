@@ -1,0 +1,8 @@
+[package]
+name = "rustmith"
+version = "0.1.0"
+authors = ["Eduard Knyshov <edvorg@gmail.com>"]
+description = "Rocksmith clone for WEB platform"
+
+[dependencies]
+yew = "0.4.0"

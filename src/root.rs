@@ -1,16 +1,18 @@
 use yew::prelude::*;
 use registry::Registry;
 use game;
+use search;
 
 #[derive(Debug, PartialEq)]
 pub enum Page {
-    Logo,
+    Search,
     Game,
 }
 
 pub enum RootMessage {
     SwitchPage(Page),
     GameSignal,
+    LogoSignal,
 }
 
 pub struct RootModel {
@@ -23,7 +25,7 @@ impl Component<Registry> for RootModel {
 
     fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating root model");
-        RootModel { page: Page::Logo }
+        RootModel { page: Page::Search }
     }
 
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
@@ -41,6 +43,10 @@ impl Component<Registry> for RootModel {
                 env.console.log("received game signal");
                 false
             },
+            RootMessage::LogoSignal => {
+                env.console.log("received logo signal");
+                false
+            },
         }
     }
 }
@@ -50,17 +56,17 @@ impl RootModel {
         html! {
         <>
           <button onclick = |_| RootMessage::SwitchPage(Page::Game) ,> { "game" } </button>
-          <button onclick = |_| RootMessage::SwitchPage(Page::Logo) ,> { "logo" } </button>
+          <button onclick = |_| RootMessage::SwitchPage(Page::Search) ,> { "search" } </button>
         </>
         }
     }
 
     fn page_view(&self) -> Html<Registry, Self> {
         match self.page {
-            Page::Logo =>
-                html! { <div> { "logo" } </div> },
+            Page::Search =>
+                html! { <search::SearchModel: onsignal=|_| RootMessage::LogoSignal, /> },
             Page::Game =>
-                html! { <div><game::GameModel: onsignal=|_| RootMessage::GameSignal, /></div> },
+                html! { <game::GameModel: onsignal=|_| RootMessage::GameSignal, /> },
         }
     }
 }
@@ -68,10 +74,10 @@ impl RootModel {
 impl Renderable<Registry, RootModel> for RootModel {
     fn view(&self) -> Html<Registry, Self> {
         html! {
-        <div>
+        <>
           { self.page_view() }
           { self.buttons_view() }
-        </div>
+        </>
         }
     }
 }

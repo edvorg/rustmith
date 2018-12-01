@@ -1,0 +1,63 @@
+@keyframes fadeInFromAbove {
+  0% {
+    opacity:0;
+    top: -200px;
+  }
+
+  100% {
+    opacity:1;
+    top: 0px;
+  }
+}
+
+@keyframes fadeInFromBelow {
+  0% {
+    opacity:0;
+    top: 10px;
+  }
+
+  100% {
+    opacity:1;
+    top: 0px;
+  }
+}
+
+body {
+  width: 100%;
+  height: 100%;
+}
+
+#logo-block {
+  margin: auto;
+  display: block;
+  text-align: center;
+  position: relative;
+  width: 800px;
+}
+
+#logo {
+  text-align: center;
+  text-transform: uppercase;
+
+  font-size: 800%;
+  font-family: sans-serif;
+
+  color: #dea584;
+  text-shadow: 2px 2px #999999;
+
+  position: relative;
+
+  animation: fadeInFromAbove ease-in-out 1;
+  animation-duration: 1.5s;
+}
+
+#search {
+  margin-left: auto;
+  margin-right: auto;
+
+  position: relative;
+  width: 80%;
+
+  animation: fadeInFromBelow ease-in-out 1;
+  animation-duration: 1.5s;
+}

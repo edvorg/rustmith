@@ -11,6 +11,7 @@ extern crate webgl_rendering_context;
 
 mod registry;
 mod root;
+mod search;
 mod game;
 mod algebra;
 mod shaders;

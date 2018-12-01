@@ -3,7 +3,7 @@ use context::Context;
 use game;
 
 #[derive(Debug, PartialEq)]
-enum Page {
+pub enum Page {
     Logo,
     Game,
 }
@@ -21,7 +21,7 @@ impl Component<Context> for PagingModel {
     type Message = PagingMessage;
     type Properties = ();
 
-    fn create(props: Self::Properties, context: &mut Env<Context, Self>) -> Self {
+    fn create(_props: Self::Properties, context: &mut Env<Context, Self>) -> Self {
         context.console.log("creating paging model");
         PagingModel { page: Page::Logo }
     }

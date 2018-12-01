@@ -11,19 +11,20 @@ use stdweb::web::html_element::CanvasElement;
 
 use webgl_rendering_context::{
     WebGLRenderingContext as gl,
-    WebGLUniformLocation,
-    WebGLBuffer
 };
+
+use renderer;
+use stdweb::web::Date;
 
 pub enum GameMessage {
     Animate,
 }
 
 pub struct GameModel {
-    onsignal: Option<Callback<Context>>,
     job: Box<Task>,
     canvas: Option<CanvasElement>,
-    ctx: Option<gl>,
+    renderer: Option<renderer::Renderer>,
+    last_update: f64,
 }
 
 #[derive(PartialEq, Clone)]
@@ -43,28 +44,32 @@ impl Component<Context> for GameModel {
     type Message = GameMessage;
     type Properties = GameProps;
 
-    fn create(props: Self::Properties, context: &mut Env<Context, Self>) -> Self {
-        context.console.log("creating game model");
+    fn create(_props: Self::Properties, env: &mut Env<Context, Self>) -> Self {
+        env.console.log("creating game model");
         GameModel {
-            onsignal: props.onsignal,
-            job: GameModel::animate(context),
+            job: GameModel::animate(env),
             canvas: None,
-            ctx: None,
+            renderer: None,
+            last_update: Date::now(),
         }
     }
 
-    fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> bool {
+    fn update(&mut self, msg: Self::Message, env: &mut Env<Context, Self>) -> bool {
         match msg {
             GameMessage::Animate => {
-                self.setup_graphics(context);
-                self.ctx.as_mut().map(GameModel::render);
-                self.job = GameModel::animate(context);
+                let now = Date::now();
+                self.setup_graphics(env);
+                if let Some(r) = &mut self.renderer {
+                    r.render((now - self.last_update) / 1000.0);
+                }
+                self.last_update = now;
+                self.job = GameModel::animate(env);
                 false
             }
         }
     }
 
-    fn change(&mut self, _: Self::Properties, context: &mut Env<Context, Self>) -> bool {
+    fn change(&mut self, _: Self::Properties, _env: &mut Env<Context, Self>) -> bool {
         false
     }
 }
@@ -78,31 +83,26 @@ impl Renderable<Context, GameModel> for GameModel {
 }
 
 impl GameModel {
-    fn animate(context: &mut Env<Context, Self>) -> Box<Task> {
-        let send_back = context.send_back(|_| GameMessage::Animate);
-        Box::new(context.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
+    fn animate(env: &mut Env<Context, Self>) -> Box<Task> {
+        let send_back = env.send_back(|_| GameMessage::Animate);
+        Box::new(env.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
     }
 
-    fn setup_graphics(&mut self, context: &mut Env<Context, Self>) {
+    fn setup_graphics(&mut self, env: &mut Env<Context, Self>) {
         if self.canvas.is_none() {
-            context.console.log("Setting up graphics context");
+            env.console.log("Setting up graphics context");
             match document().query_selector("#canvas") {
                 Ok(Some(canvas)) => {
                     let canvas: CanvasElement = canvas.try_into().unwrap();
-                    let ctx: gl = canvas.get_context().unwrap();
-                    context.console.log("Graphics context inititalized");
-                    ctx.clear_color(1.0, 0.0, 0.0, 1.0);
-                    ctx.clear(gl::COLOR_BUFFER_BIT);
+                    let context: gl = canvas.get_context().unwrap();
+                    env.console.log("Graphics context inititalized");
+                    let renderer = renderer::Renderer::new(context, canvas.width(), canvas.height());
                     self.canvas = Some(canvas);
-                    self.ctx = Some(ctx);
+                    self.renderer = Some(renderer);
                     ()
                 },
                 _ => (),
             }
         }
-    }
-
-    fn render(ctx: &mut gl) {
-        ctx.clear(gl::COLOR_BUFFER_BIT);
     }
 }

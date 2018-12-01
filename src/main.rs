@@ -12,6 +12,9 @@ extern crate webgl_rendering_context;
 mod context;
 mod paging;
 mod game;
+mod algebra;
+mod shaders;
+mod renderer;
 
 use yew::prelude::*;
 use yew::services::console::ConsoleService;

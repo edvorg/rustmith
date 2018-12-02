@@ -51,7 +51,6 @@ impl Component<Registry> for SearchModel {
     }
 
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
-        env.console.log(&format!("updating {:?}", &msg));
         match msg {
             SearchMessage::UpdateSearchString(s) => {
                 self.search_str = s;
@@ -68,7 +67,6 @@ impl Component<Registry> for SearchModel {
                 false
             },
             SearchMessage::ResultsReceived(r) => {
-                env.console.log(&format!("received results {:?}", &r));
                 let old_results = self.search_results.take();
                 let results = match old_results {
                     Some(l) => SearchResponse::combine(l, r),

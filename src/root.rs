@@ -28,7 +28,6 @@ impl Component<Registry> for RootModel {
     }
 
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
-        env.console.log("updating root model");
         match msg {
             RootMessage::GameSignal(game::RoutingMessage::ExitGame) => {
                 self.page = Page::Search;

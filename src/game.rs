@@ -22,7 +22,7 @@ pub enum RoutingMessage {
 
 pub enum GameMessage {
     Animate { time: f64 },
-    Resize(f32, f32),
+    Resize((f32, f32)),
     Exit,
 }
 
@@ -87,7 +87,7 @@ impl Component<Registry> for GameModel {
                 }
                 false
             },
-            GameMessage::Resize(width, height) => {
+            GameMessage::Resize((width, height)) => {
                 env.console.log(&format!("Canvas resized ({}, {})", width, height));
                 if let Some(r) = &mut self.renderer {
                     r.set_viewport(width, height);
@@ -106,14 +106,18 @@ impl Renderable<Registry, GameModel> for GameModel {
     fn view(&self) -> Html<Registry, GameModel> {
         let url = self.song_url.clone().unwrap();
         html! {
-          <div>
-            <button onclick = |_| GameMessage::Exit ,> { "exit" } </button>
-            <canvas id="canvas",></canvas>
-            <iframe id="video-clip",
-                    src=url.clone(),
-                    frameborder="0",
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
-            </iframe>
+          <div class="game",>
+            <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
+            <div class="game-view",>
+              <canvas id="canvas",></canvas>
+            </div>
+            <div class="game-video",>
+              <iframe id="video-clip",
+                      src=url.clone(),
+                      frameborder="0",
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
+              </iframe>
+            </div>
           </div>
         }
     }
@@ -126,8 +130,13 @@ impl GameModel {
     }
 
     fn update_canvas(canvas: &mut CanvasElement) {
-        canvas.set_width(canvas.offset_width() as u32);
-        canvas.set_height(canvas.offset_height() as u32);
+//        FIXME implement correct canvas update logic
+//        canvas.set_width(canvas.offset_width() as u32);
+//        canvas.set_height(canvas.offset_height() as u32);
+    }
+
+    fn get_canvas_size(canvas: &CanvasElement) -> (f32, f32) {
+        (canvas.width() as f32, canvas.height() as f32)
     }
 
     fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {
@@ -136,11 +145,14 @@ impl GameModel {
             Ok(Some(canvas)) => {
                 let mut canvas: CanvasElement = canvas.try_into().unwrap();
                 GameModel::update_canvas(&mut canvas);
-                let renderer = Renderer::new(&canvas);
+                let context = Renderer::make_cotext(&canvas);
+                let size = GameModel::get_canvas_size(&canvas);
+                let renderer = Renderer::new(context, size);
                 let callback = env.send_back(|m| m);
                 window().add_event_listener(move |_: ResizeEvent| {
                     GameModel::update_canvas(&mut canvas);
-                    callback.emit(GameMessage::Resize(canvas.width() as f32, canvas.height() as f32));
+                    let size = GameModel::get_canvas_size(&canvas);
+                    callback.emit(GameMessage::Resize(size));
                 });
                 env.console.log("Graphics context inititalized");
                 Some(renderer)

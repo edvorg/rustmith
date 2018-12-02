@@ -24,7 +24,8 @@ impl Component<Registry> for RootModel {
 
     fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating root model");
-        RootModel { page: Page::Search }
+//        RootModel { page: Page::Search }
+        RootModel { page: Page::Game { song_id: String::from("0"), song_url: String::from("https://www.youtube.com/embed/vsI15ei76bg?autoplay=1"), } }
     }
 
     fn update(&mut self, msg: Self::Message, _env: &mut Env<Registry, Self>) -> bool {

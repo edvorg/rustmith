@@ -8,6 +8,7 @@ use webgl_rendering_context::{
     WebGLUniformLocation,
     WebGLBuffer
 };
+use stdweb::web::IHtmlElement;
 use stdweb::web::html_element::CanvasElement;
 
 pub struct Renderer {
@@ -48,9 +49,12 @@ impl Renderer {
         self.height = height;
     }
 
-    pub fn new(canvas: &CanvasElement) -> Self {
-        let context: gl = canvas.get_context().unwrap();
+    pub fn make_cotext(canvas: &CanvasElement) -> gl {
+        canvas.get_context().unwrap()
+    }
 
+    pub fn new(context: gl, size: (f32, f32)) -> Self {
+        let (width, height) = size;
         let vert_shader = context.create_shader(gl::VERTEX_SHADER).unwrap();
         context.shader_source(&vert_shader, shaders::VERTEX_CODE);
         context.compile_shader(&vert_shader);
@@ -136,8 +140,8 @@ impl Renderer {
             view_matrix,
             index_buffer,
             context,
-            width: canvas.width() as f32,
-            height: canvas.height() as f32,
+            width,
+            height,
         }
     }
 }

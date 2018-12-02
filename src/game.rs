@@ -1,6 +1,5 @@
 use yew::prelude::*;
 use registry::Registry;
-use std::time::Duration;
 use yew::services::Task;
 use stdweb::web::{
     document,
@@ -10,23 +9,29 @@ use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
 
 use graphics::renderer;
-use stdweb::web::Date;
 use graphics::renderer::Renderer;
-use stdweb::Value;
+
+/// this type of message is used for inter-component communication
+pub enum RoutingMessage {
+    /// switch to search screen
+    ExitGame,
+}
 
 pub enum GameMessage {
     Animate { time: f64 },
+    Exit,
 }
 
 pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
     last_time: Option<f64>,
+    pub onsignal: Option<Callback<RoutingMessage>>,
 }
 
 #[derive(PartialEq, Clone)]
 pub struct GameProps {
-    pub onsignal: Option<Callback<Registry>>,
+    pub onsignal: Option<Callback<RoutingMessage>>,
 }
 
 impl Default for GameProps {
@@ -41,12 +46,13 @@ impl Component<Registry> for GameModel {
     type Message = GameMessage;
     type Properties = GameProps;
 
-    fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
+    fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
             last_time: None,
+            onsignal: props.onsignal,
         }
     }
 
@@ -62,7 +68,13 @@ impl Component<Registry> for GameModel {
                 self.job = GameModel::animate(env);
                 self.last_time = Some(time);
                 false
-            }
+            },
+            GameMessage::Exit => {
+                if let Some(callback) = &self.onsignal {
+                    callback.emit(RoutingMessage::ExitGame);
+                }
+                false
+            },
         }
     }
 
@@ -74,7 +86,10 @@ impl Component<Registry> for GameModel {
 impl Renderable<Registry, GameModel> for GameModel {
     fn view(&self) -> Html<Registry, GameModel> {
         html! {
-          <canvas id="canvas", width=640, height=480,></canvas>
+          <div>
+            <canvas id="canvas", width=640, height=480,></canvas>
+            <button onclick = |_| GameMessage::Exit ,> { "exit" } </button>
+          </div>
         }
     }
 }

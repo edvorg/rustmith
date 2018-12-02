@@ -15,6 +15,7 @@ mod search;
 mod game;
 
 mod services {
+    pub mod search;
     pub mod render;
 }
 
@@ -28,14 +29,16 @@ use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
 use registry::Registry;
+use services::search::StubSearchService;
 use services::render::RenderService;
 
 fn main() {
     yew::initialize();
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
+    let search = StubSearchService::new();
     let render = RenderService::new();
-    let registry = Registry { console, timeout, render };
+    let registry = Registry { console, timeout, search, render };
     let app = App::<Registry, root::RootModel>::new(registry);
     app.mount_to_body();
     yew::run_loop();

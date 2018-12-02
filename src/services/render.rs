@@ -1,7 +1,6 @@
 use stdweb::Value;
 use yew::prelude::*;
 use yew::services::Task;
-use stdweb::Number;
 use stdweb::unstable::TryInto;
 
 /// A handle to cancel a render task.

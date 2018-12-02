@@ -10,9 +10,8 @@ pub enum Page {
 }
 
 pub enum RootMessage {
-    SwitchPage(Page),
-    GameSignal,
-    LogoSignal,
+    GameSignal(game::RoutingMessage),
+    SearchSignal(search::RoutingMessage),
 }
 
 pub struct RootModel {
@@ -31,53 +30,25 @@ impl Component<Registry> for RootModel {
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
         env.console.log("updating root model");
         match msg {
-            RootMessage::SwitchPage(page) => {
-                if page == self.page {
-                    false
-                } else {
-                    self.page = page;
-                    true
-                }
+            RootMessage::GameSignal(game::RoutingMessage::ExitGame) => {
+                self.page = Page::Search;
+                true
             },
-            RootMessage::GameSignal => {
-                env.console.log("received game signal");
-                false
+            RootMessage::SearchSignal(search::RoutingMessage::StartGame { song_id: _ }) => {
+                self.page = Page::Game;
+                true
             },
-            RootMessage::LogoSignal => {
-                env.console.log("received logo signal");
-                false
-            },
-        }
-    }
-}
-
-impl RootModel {
-    fn buttons_view(&self) -> Html<Registry, Self> {
-        html! {
-        <>
-          <button onclick = |_| RootMessage::SwitchPage(Page::Game) ,> { "game" } </button>
-          <button onclick = |_| RootMessage::SwitchPage(Page::Search) ,> { "search" } </button>
-        </>
-        }
-    }
-
-    fn page_view(&self) -> Html<Registry, Self> {
-        match self.page {
-            Page::Search =>
-                html! { <search::SearchModel: onsignal=|_| RootMessage::LogoSignal, /> },
-            Page::Game =>
-                html! { <game::GameModel: onsignal=|_| RootMessage::GameSignal, /> },
         }
     }
 }
 
 impl Renderable<Registry, RootModel> for RootModel {
     fn view(&self) -> Html<Registry, Self> {
-        html! {
-        <>
-          { self.page_view() }
-          { self.buttons_view() }
-        </>
+        match self.page {
+            Page::Search =>
+                html! { <search::SearchModel: onsignal=|m| RootMessage::SearchSignal(m), /> },
+            Page::Game =>
+                html! { <game::GameModel: onsignal=|m| RootMessage::GameSignal(m), /> },
         }
     }
 }

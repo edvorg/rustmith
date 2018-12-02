@@ -1,6 +1,8 @@
 use stdweb::Value;
 use yew::prelude::*;
 use yew::services::Task;
+use stdweb::Number;
+use stdweb::unstable::TryInto;
 
 /// A handle to cancel a render task.
 pub struct RenderTask(Option<Value>);
@@ -14,14 +16,18 @@ impl RenderService {
         Self {}
     }
 
-    pub fn request_animation_frame(&mut self, callback: Callback<()>) -> RenderTask {
-        let callback = move || {
-            callback.emit(());
+    pub fn request_animation_frame(&mut self, callback: Callback<f64>) -> RenderTask {
+        let callback = move |v| {
+            let time: f64 = match v {
+                Value::Number(n) => n.try_into().unwrap(),
+                _ => 0.0
+            };
+            callback.emit(time);
         };
         let handle = js! {
             var callback = @{callback};
-            var action = function() {
-                callback();
+            var action = function(time) {
+                callback(time);
                 callback.drop();
             };
             return {

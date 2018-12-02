@@ -12,15 +12,16 @@ use stdweb::web::html_element::CanvasElement;
 use graphics::renderer;
 use stdweb::web::Date;
 use graphics::renderer::Renderer;
+use stdweb::Value;
 
 pub enum GameMessage {
-    Animate,
+    Animate { time: f64 },
 }
 
 pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
-    last_update: f64,
+    last_time: Option<f64>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -45,22 +46,21 @@ impl Component<Registry> for GameModel {
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
-            last_update: Date::now(),
+            last_time: None,
         }
     }
 
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
         match msg {
-            GameMessage::Animate => {
-                let now = Date::now();
+            GameMessage::Animate { time } => {
                 if self.renderer.is_none() {
                     self.renderer = self.setup_graphics(env);
                 }
                 if let Some(r) = &mut self.renderer {
-                    r.render((now - self.last_update) / 1000.0);
+                    r.render((self.last_time.unwrap_or(time) - time) / 1000.0);
                 }
-                self.last_update = now;
                 self.job = GameModel::animate(env);
+                self.last_time = Some(time);
                 false
             }
         }
@@ -81,7 +81,7 @@ impl Renderable<Registry, GameModel> for GameModel {
 
 impl GameModel {
     fn animate(env: &mut Env<Registry, Self>) -> Box<Task> {
-        let send_back = env.send_back(|_| GameMessage::Animate);
+        let send_back = env.send_back(|time| GameMessage::Animate { time });
         Box::new(env.render.request_animation_frame(send_back))
     }
 

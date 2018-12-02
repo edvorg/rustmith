@@ -64,6 +64,7 @@ impl StubSearchService {
             "Metallica - Nothing Else Matters",
             "Black Sabbath - Paranoid",
             "Ozzy Osbourne - Crazy Train",
+            "Lynyrd Skynyrd - Sweet Home Alabama",
         );
         let items = songs.into_iter()
             .map(|s| -> String { s.into() })

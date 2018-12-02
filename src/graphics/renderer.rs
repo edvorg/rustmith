@@ -8,7 +8,6 @@ use webgl_rendering_context::{
     WebGLUniformLocation,
     WebGLBuffer
 };
-use stdweb::web::IHtmlElement;
 use stdweb::web::html_element::CanvasElement;
 
 pub struct Renderer {

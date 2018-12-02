@@ -6,7 +6,7 @@ use services::search::SearchItem;
 
 pub enum RoutingMessage {
     /// switch to game screen and load song with id song_id
-    StartGame { song_id: String, },
+    StartGame { song_id: String, song_url: String, },
 }
 
 #[derive(Debug)]
@@ -16,7 +16,7 @@ pub enum SearchMessage {
     UnknownKey,
     ResultsReceived(SearchResponse),
     LoadMore { term: String, continuation_token: String },
-    PlayGame { song_id: String },
+    PlayGame { song_id: String, song_url: String },
 }
 
 pub struct SearchModel {
@@ -75,9 +75,9 @@ impl Component<Registry> for SearchModel {
                 self.search_results = Some(results);
                 true
             },
-            SearchMessage::PlayGame { song_id } => {
+            SearchMessage::PlayGame { song_id, song_url } => {
                 if let Some(callback) = &self.onsignal {
-                    callback.emit(RoutingMessage::StartGame { song_id });
+                    callback.emit(RoutingMessage::StartGame { song_id, song_url });
                 }
                 false
             },
@@ -120,11 +120,12 @@ impl Renderable<Registry, SearchModel> for SearchModel {
 impl SearchModel {
     fn item_view(&self, item: &SearchItem) -> Html<Registry, SearchModel> {
         let id = item.id.clone();
+        let url = item.url.clone();
         let name = item.name.clone();
         html! {
           <div>
             { name }
-            <button onclick=|_| SearchMessage::PlayGame { song_id: id.clone() },> { "play" } </button>
+            <button onclick=|_| SearchMessage::PlayGame { song_id: id.clone(), song_url: url.clone() },> { "play" } </button>
           </div>
         }
     }

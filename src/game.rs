@@ -26,18 +26,24 @@ pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
     last_time: Option<f64>,
-    pub onsignal: Option<Callback<RoutingMessage>>,
+    pub on_signal: Option<Callback<RoutingMessage>>,
+    pub song_id: Option<String>,
+    pub song_url: Option<String>,
 }
 
 #[derive(PartialEq, Clone)]
 pub struct GameProps {
     pub onsignal: Option<Callback<RoutingMessage>>,
+    pub songid: Option<String>,
+    pub songurl: Option<String>,
 }
 
 impl Default for GameProps {
     fn default() -> Self {
         GameProps {
-            onsignal: None
+            onsignal: None,
+            songid: None,
+            songurl: None,
         }
     }
 }
@@ -52,7 +58,9 @@ impl Component<Registry> for GameModel {
             job: GameModel::animate(env),
             renderer: None,
             last_time: None,
-            onsignal: props.onsignal,
+            on_signal: props.onsignal,
+            song_id: props.songid,
+            song_url: props.songurl,
         }
     }
 
@@ -70,7 +78,7 @@ impl Component<Registry> for GameModel {
                 false
             },
             GameMessage::Exit => {
-                if let Some(callback) = &self.onsignal {
+                if let Some(callback) = &self.on_signal {
                     callback.emit(RoutingMessage::ExitGame);
                 }
                 false
@@ -85,9 +93,16 @@ impl Component<Registry> for GameModel {
 
 impl Renderable<Registry, GameModel> for GameModel {
     fn view(&self) -> Html<Registry, GameModel> {
+        let url = self.song_url.clone().unwrap();
         html! {
           <div>
             <canvas id="canvas", width=640, height=480,></canvas>
+            <iframe width="640",
+                    height="480",
+                    src=url.clone(),
+                    frameborder="0",
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
+            </iframe>
             <button onclick = |_| GameMessage::Exit ,> { "exit" } </button>
           </div>
         }

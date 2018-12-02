@@ -5,6 +5,7 @@ use std::str::FromStr;
 pub struct SearchItem {
     pub name: String,
     pub id: String,
+    pub url: String,
 }
 
 #[derive(Debug)]
@@ -49,29 +50,30 @@ pub struct StubSearchService {
 impl StubSearchService {
     pub fn new() -> StubSearchService {
         let songs = vec!(
-            "Jimi Hendrix - Foxey Lady",
-            "Queen - Bohemian Rhapsody",
-            "Guns N' Roses - Welcome To The Jungle",
-            "Guns N' Roses - Knockin' On Heaven's Door",
-            "AC/DC - Highway to Hell",
-            "Michael Jackson - Beat It",
-            "Daft Punk - Get Lucky",
-            "Scorpions - Wind Of Change",
-            "The Cranberries - Zombie",
-            "The Police - Every Breath You Take",
-            "Dire Straits - Sultans Of Swing",
-            "Led Zeppelin - Stairway To Heaven",
-            "Metallica - Nothing Else Matters",
-            "Black Sabbath - Paranoid",
-            "Ozzy Osbourne - Crazy Train",
-            "Lynyrd Skynyrd - Sweet Home Alabama",
+            ("Jimi Hendrix - Foxey Lady", "https://www.youtube.com/embed/vsI15ei76bg"),
+            ("Queen - Bohemian Rhapsody", "https://www.youtube.com/embed/fJ9rUzIMcZQ"),
+            ("Guns N' Roses - Welcome To The Jungle", "https://www.youtube.com/embed/o1tj2zJ2Wvg"),
+            ("Guns N' Roses - Knockin' On Heaven's Door", "https://www.youtube.com/embed/0BRUDmTxdmA"),
+            ("AC/DC - Highway to Hell", "https://www.youtube.com/embed/l482T0yNkeo"),
+            ("Michael Jackson - Beat It", "https://www.youtube.com/embed/oRdxUFDoQe0"),
+            ("Daft Punk - Get Lucky", "https://www.youtube.com/embed/5NV6Rdv1a3I"),
+            ("Scorpions - Wind Of Change", "https://www.youtube.com/embed/n4RjJKxsamQ"),
+            ("The Cranberries - Zombie", "https://www.youtube.com/embed/6Ejga4kJUts"),
+            ("The Police - Every Breath You Take", "https://www.youtube.com/embed/OMOGaugKpzs"),
+            ("Dire Straits - Sultans Of Swing", "https://www.youtube.com/embed/0fAQhSRLQnM"),
+            ("Led Zeppelin - Stairway To Heaven", "https://www.youtube.com/embed/D9ioyEvdggk"),
+            ("Metallica - Nothing Else Matters", "https://www.youtube.com/embed/tAGnKpE4NCI"),
+            ("Black Sabbath - Paranoid", "https://www.youtube.com/embed/uk_wUT1CvWM"),
+            ("Ozzy Osbourne - Crazy Train", "https://www.youtube.com/embed/vy1V5LHXWbg"),
+            ("Lynyrd Skynyrd - Sweet Home Alabama", "https://www.youtube.com/embed/ye5BuYf8q4o"),
         );
         let items = songs.into_iter()
-            .map(|s| -> String { s.into() })
+            .map(|(name, url)| { (String::from(name), String::from(url)) })
             .zip(0..)
-            .map(move |(a, b)| {
+            .map(move |((name, url), b)| {
                 SearchItem {
-                    name: a.into(),
+                    name: name,
+                    url: url + "?autoplay=1",
                     id: b.to_string(),
                 }
             }).collect();

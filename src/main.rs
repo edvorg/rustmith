@@ -13,9 +13,12 @@ mod registry;
 mod root;
 mod search;
 mod game;
-mod algebra;
-mod shaders;
-mod renderer;
+
+mod graphics {
+    pub mod algebra;
+    pub mod shaders;
+    pub mod renderer;
+}
 
 use yew::prelude::*;
 use yew::services::console::ConsoleService;

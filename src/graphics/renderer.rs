@@ -1,5 +1,5 @@
-use algebra;
-use shaders;
+use graphics::algebra;
+use graphics::shaders;
 use stdweb::web::{
     TypedArray,
 };

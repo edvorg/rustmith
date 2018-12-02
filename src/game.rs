@@ -13,7 +13,7 @@ use webgl_rendering_context::{
     WebGLRenderingContext as gl,
 };
 
-use renderer;
+use graphics::renderer;
 use stdweb::web::Date;
 
 pub enum GameMessage {
@@ -58,7 +58,9 @@ impl Component<Registry> for GameModel {
         match msg {
             GameMessage::Animate => {
                 let now = Date::now();
-                self.setup_graphics(env);
+                if self.canvas.is_none() {
+                    self.setup_graphics(env);
+                }
                 if let Some(r) = &mut self.renderer {
                     r.render((now - self.last_update) / 1000.0);
                 }
@@ -89,20 +91,18 @@ impl GameModel {
     }
 
     fn setup_graphics(&mut self, env: &mut Env<Registry, Self>) {
-        if self.canvas.is_none() {
-            env.console.log("Setting up graphics context");
-            match document().query_selector("#canvas") {
-                Ok(Some(canvas)) => {
-                    let canvas: CanvasElement = canvas.try_into().unwrap();
-                    let context: gl = canvas.get_context().unwrap();
-                    env.console.log("Graphics context inititalized");
-                    let renderer = renderer::Renderer::new(context, canvas.width(), canvas.height());
-                    self.canvas = Some(canvas);
-                    self.renderer = Some(renderer);
-                    ()
-                },
-                _ => (),
-            }
+        env.console.log("Setting up graphics context");
+        match document().query_selector("#canvas") {
+            Ok(Some(canvas)) => {
+                let canvas: CanvasElement = canvas.try_into().unwrap();
+                let context: gl = canvas.get_context().unwrap();
+                env.console.log("Graphics context inititalized");
+                let renderer = renderer::Renderer::new(context, canvas.width(), canvas.height());
+                self.canvas = Some(canvas);
+                self.renderer = Some(renderer);
+                ()
+            },
+            _ => (),
         }
     }
 }

@@ -7,9 +7,12 @@ use stdweb::web::{
 };
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
-
+use stdweb::web::IHtmlElement;
 use graphics::renderer;
 use graphics::renderer::Renderer;
+use stdweb::web::window;
+use stdweb::web::event::ResizeEvent;
+use stdweb::web::IEventTarget;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -19,6 +22,7 @@ pub enum RoutingMessage {
 
 pub enum GameMessage {
     Animate { time: f64 },
+    Resize(f32, f32),
     Exit,
 }
 
@@ -83,6 +87,13 @@ impl Component<Registry> for GameModel {
                 }
                 false
             },
+            GameMessage::Resize(width, height) => {
+                env.console.log(&format!("Canvas resized ({}, {})", width, height));
+                if let Some(r) = &mut self.renderer {
+                    r.set_viewport(width, height);
+                }
+                false
+            },
         }
     }
 
@@ -96,14 +107,13 @@ impl Renderable<Registry, GameModel> for GameModel {
         let url = self.song_url.clone().unwrap();
         html! {
           <div>
-            <canvas id="canvas", width=640, height=480,></canvas>
-            <iframe width="640",
-                    height="480",
+            <button onclick = |_| GameMessage::Exit ,> { "exit" } </button>
+            <canvas id="canvas",></canvas>
+            <iframe id="video-clip",
                     src=url.clone(),
                     frameborder="0",
                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
             </iframe>
-            <button onclick = |_| GameMessage::Exit ,> { "exit" } </button>
           </div>
         }
     }
@@ -115,12 +125,23 @@ impl GameModel {
         Box::new(env.render.request_animation_frame(send_back))
     }
 
+    fn update_canvas(canvas: &mut CanvasElement) {
+        canvas.set_width(canvas.offset_width() as u32);
+        canvas.set_height(canvas.offset_height() as u32);
+    }
+
     fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {
         env.console.log("Setting up graphics context");
         match document().query_selector("#canvas") {
             Ok(Some(canvas)) => {
-                let canvas: CanvasElement = canvas.try_into().unwrap();
-                let renderer = Renderer::new(&canvas, canvas.width(), canvas.height());
+                let mut canvas: CanvasElement = canvas.try_into().unwrap();
+                GameModel::update_canvas(&mut canvas);
+                let renderer = Renderer::new(&canvas);
+                let callback = env.send_back(|m| m);
+                window().add_event_listener(move |_: ResizeEvent| {
+                    GameModel::update_canvas(&mut canvas);
+                    callback.emit(GameMessage::Resize(canvas.width() as f32, canvas.height() as f32));
+                });
                 env.console.log("Graphics context inititalized");
                 Some(renderer)
             },

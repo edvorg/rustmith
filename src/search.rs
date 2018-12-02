@@ -145,7 +145,7 @@ impl SearchModel {
                     <div> { for items.iter().map(|i| self.item_view(i)) } </div>
                     <button onclick=|_| SearchMessage::LoadMore {
                               term: term.clone(),
-                              continuation_token: continuation_token.clone()
+                              continuation_token: continuation_token.clone(),
                             },>
                       { "Load more" }
                     </button>

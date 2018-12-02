@@ -88,3 +88,13 @@ body {
   animation: fadeInFromBelowDelayed ease-in-out 1;
   animation-duration: 3.0s;
 }
+
+#video-clip {
+  width: 640px;
+  height: 480px;
+}
+
+#canvas {
+  width: 640px;
+  height: 480px;
+}

@@ -27,7 +27,7 @@ impl Component<Registry> for RootModel {
         RootModel { page: Page::Search }
     }
 
-    fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
+    fn update(&mut self, msg: Self::Message, _env: &mut Env<Registry, Self>) -> bool {
         match msg {
             RootMessage::GameSignal(game::RoutingMessage::ExitGame) => {
                 self.page = Page::Search;
@@ -47,8 +47,6 @@ impl Renderable<Registry, RootModel> for RootModel {
             Page::Search =>
                 html! { <search::SearchModel: onsignal=|m| RootMessage::SearchSignal(m), /> },
             Page::Game { song_id, song_url } => {
-                let song_id = song_id.clone();
-                let song_url = song_url.clone();
                 html! { <game::GameModel: onsignal=|m| RootMessage::GameSignal(m), songid=Some(song_id.clone()), songurl=Some(song_url.clone()), /> }
             },
         }

@@ -14,6 +14,10 @@ mod root;
 mod search;
 mod game;
 
+mod services {
+    pub mod render;
+}
+
 mod graphics {
     pub mod algebra;
     pub mod shaders;
@@ -24,12 +28,14 @@ use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
 use registry::Registry;
+use services::render::RenderService;
 
 fn main() {
     yew::initialize();
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
-    let registry = Registry { console, timeout };
+    let render = RenderService::new();
+    let registry = Registry { console, timeout, render };
     let app = App::<Registry, root::RootModel>::new(registry);
     app.mount_to_body();
     yew::run_loop();

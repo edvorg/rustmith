@@ -82,7 +82,7 @@ impl Renderable<Registry, GameModel> for GameModel {
 impl GameModel {
     fn animate(env: &mut Env<Registry, Self>) -> Box<Task> {
         let send_back = env.send_back(|_| GameMessage::Animate);
-        Box::new(env.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
+        Box::new(env.render.request_animation_frame(send_back))
     }
 
     fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {

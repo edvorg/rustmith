@@ -595,6 +595,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_72fc447820458c720c68d0d8e078ede631edd723": function($0, $1, $2) {
                 console.error( 'Panic location:', Module.STDWEB_PRIVATE.to_js_string( $0, $1 ) + ':' + $2 );
             },
+            "__extjs_74d5764ddc102a8d3b6252116087a68f2db0c9d4": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){return window ;})());
+            },
             "__extjs_74e6b3628156d1f468b2cc770c3cd6665ca63ace": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). removeAttribute (($1));
             },
@@ -702,6 +705,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_cb392b71162553130760deeb3964fa828c078f74": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLInputElement) | 0;
+            },
+            "__extjs_d2e4181d99d09b8dcdaf227704c44b7be437abd4": function($0) {
+                var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "resize") | 0;
             },
             "__extjs_d5a793fae1267a877b445337cdc5e8d5d429a9d0": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLUniformLocation) | 0;

@@ -9,12 +9,9 @@ use stdweb::web::{
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
 
-use webgl_rendering_context::{
-    WebGLRenderingContext as gl,
-};
-
 use graphics::renderer;
 use stdweb::web::Date;
+use graphics::renderer::Renderer;
 
 pub enum GameMessage {
     Animate,
@@ -22,7 +19,6 @@ pub enum GameMessage {
 
 pub struct GameModel {
     job: Box<Task>,
-    canvas: Option<CanvasElement>,
     renderer: Option<renderer::Renderer>,
     last_update: f64,
 }
@@ -48,7 +44,6 @@ impl Component<Registry> for GameModel {
         env.console.log("creating game model");
         GameModel {
             job: GameModel::animate(env),
-            canvas: None,
             renderer: None,
             last_update: Date::now(),
         }
@@ -58,8 +53,8 @@ impl Component<Registry> for GameModel {
         match msg {
             GameMessage::Animate => {
                 let now = Date::now();
-                if self.canvas.is_none() {
-                    self.setup_graphics(env);
+                if self.renderer.is_none() {
+                    self.renderer = self.setup_graphics(env);
                 }
                 if let Some(r) = &mut self.renderer {
                     r.render((now - self.last_update) / 1000.0);
@@ -90,19 +85,16 @@ impl GameModel {
         Box::new(env.timeout.spawn(Duration::from_millis(1000 / 60 as u64), send_back))
     }
 
-    fn setup_graphics(&mut self, env: &mut Env<Registry, Self>) {
+    fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {
         env.console.log("Setting up graphics context");
         match document().query_selector("#canvas") {
             Ok(Some(canvas)) => {
                 let canvas: CanvasElement = canvas.try_into().unwrap();
-                let context: gl = canvas.get_context().unwrap();
+                let renderer = Renderer::new(&canvas, canvas.width(), canvas.height());
                 env.console.log("Graphics context inititalized");
-                let renderer = renderer::Renderer::new(context, canvas.width(), canvas.height());
-                self.canvas = Some(canvas);
-                self.renderer = Some(renderer);
-                ()
+                Some(renderer)
             },
-            _ => (),
+            _ => None,
         }
     }
 }

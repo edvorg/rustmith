@@ -8,6 +8,7 @@ use webgl_rendering_context::{
     WebGLUniformLocation,
     WebGLBuffer
 };
+use stdweb::web::html_element::CanvasElement;
 
 pub struct Renderer {
     pub p_matrix: WebGLUniformLocation,
@@ -42,7 +43,9 @@ impl Renderer {
         self.context.draw_elements(gl::TRIANGLES, 36, gl::UNSIGNED_SHORT, 0);
     }
 
-    pub fn new(context: gl, width: u32, height: u32) -> Self {
+    pub fn new(canvas: &CanvasElement, width: u32, height: u32) -> Self {
+        let context: gl = canvas.get_context().unwrap();
+
         let vert_shader = context.create_shader(gl::VERTEX_SHADER).unwrap();
         context.shader_source(&vert_shader, shaders::VERTEX_CODE);
         context.compile_shader(&vert_shader);

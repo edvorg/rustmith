@@ -31,6 +31,9 @@ use yew::services::timeout::TimeoutService;
 use registry::Registry;
 use services::search::StubSearchService;
 use services::render::RenderService;
+use stdweb::web::INonElementParentNode;
+use stdweb::web::window;
+use stdweb::web::document;
 
 fn main() {
     yew::initialize();
@@ -40,6 +43,6 @@ fn main() {
     let render = RenderService::new();
     let registry = Registry { console, timeout, search, render };
     let app = App::<Registry, root::RootModel>::new(registry);
-    app.mount_to_body();
+    app.mount(document().get_element_by_id("app").unwrap());
     yew::run_loop();
 }

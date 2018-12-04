@@ -26,6 +26,12 @@ pub enum GameMessage {
     Exit,
 }
 
+struct GameStats {
+    notes_missed: u16,
+    notes_hit: u16,
+    mastery: u16,
+}
+
 pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
@@ -33,6 +39,7 @@ pub struct GameModel {
     pub on_signal: Option<Callback<RoutingMessage>>,
     pub song_id: Option<String>,
     pub song_url: Option<String>,
+    stats: GameStats,
 }
 
 #[derive(PartialEq, Clone)]
@@ -65,6 +72,11 @@ impl Component<Registry> for GameModel {
             on_signal: props.onsignal,
             song_id: props.songid,
             song_url: props.songurl,
+            stats: GameStats {
+                notes_missed: 0,
+                notes_hit: 0,
+                mastery: 0
+            },
         }
     }
 
@@ -117,6 +129,28 @@ impl Renderable<Registry, GameModel> for GameModel {
                       frameborder="0",
                       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
               </iframe>
+            </div>
+            <div class="game-stats",>
+              <div>
+                { format!("Notes missed {}", &self.stats.notes_missed) }
+              </div>
+              <div>
+                { format!("Notes hit {}", &self.stats.notes_hit) }
+              </div>
+              <div>
+                { format!("Mastery {}%", &self.stats.mastery) }
+              </div>
+            </div>
+            <div class="game-effects",>
+              <div>
+                { "Overdrive" }
+              </div>
+              <div>
+                { "Distoration" }
+              </div>
+              <div>
+                { "Compressor" }
+              </div>
             </div>
           </div>
         }

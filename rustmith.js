@@ -532,6 +532,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_2ff57da66ea0e6d13328bc60a5a5dbfee840cbf2": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);var listener = ($0); ($1). removeEventListener (($2), listener); listener.drop ();
             },
+            "__extjs_308378b7e769153240a5729ed6f8f95f43a4c1bd": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){return window.devicePixelRatio ;})());
+            },
             "__extjs_30e862465c9cfcbb541e7ea1eb27999c7d4891c8": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). enableVertexAttribArray (($1));
             },
@@ -580,14 +583,23 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_5ecfd7ee5cecc8be26c1e6e3c90ce666901b547c": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). error ;})());
             },
+            "__extjs_690fa77630cde409b06b28d7cb33cf9d181b389e": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). height = ($1);
+            },
             "__extjs_6a0bf07b6e92fa20cf6af04918b9707e6ebc23bf": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof ArrayBuffer) | 0;
+            },
+            "__extjs_6a3171c5532010fc776bf5533d354e67c08b2c8d": function($0, $1) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). clientHeight ;})());
             },
             "__extjs_6c47cfe7b20d140c462be80002863de205806d99": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). width ;})());
             },
             "__extjs_6cefb3f8f686ff4258b53f298306c96222040c03": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). getAttribLocation (($2), ($3));})());
+            },
+            "__extjs_6d9cd7006b4bd6e5370dc5e43d8d41f9aca46e77": function($0, $1) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). clientWidth ;})());
             },
             "__extjs_713d1b04d9e622498f19dae5286acec13a6b2a12": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLBuffer) | 0;
@@ -622,6 +634,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_80d6d56760c65e49b7be8b6b01c1ea861b046bf0": function($0) {
                 Module.STDWEB_PRIVATE.decrement_refcount( $0 );
             },
+            "__extjs_8161ba10c6c757c43a24b442d3c1ec79bd7b55b4": function($0, $1, $2) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1). viewportHeight = ($2);})());
+            },
             "__extjs_8545f3ba2883a49a2afd23c48c5d24ef3f9b0071": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLTextAreaElement) | 0;
             },
@@ -646,8 +661,14 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_97495987af1720d8a9a923fa4683a7b683e3acd6": function($0, $1) {
                 console.error( 'Panic error message:', Module.STDWEB_PRIVATE.to_js_string( $0, $1 ) );
             },
+            "__extjs_9b6375c037b486fe12587b716aff148f791f3e6a": function($0, $1) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). width = ($1);
+            },
             "__extjs_9b8f0239c96031296297f54cac254800f2e5e858": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);($0). attachShader (($1), ($2));
+            },
+            "__extjs_9ec15ec9de3215ab9f2bb701bd0cff0322d81c82": function($0, $1, $2) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1). viewportWidth = ($2);})());
             },
             "__extjs_9f22d4ca7bc938409787341b7db181f8dd41e6df": function($0) {
                 Module.STDWEB_PRIVATE.increment_refcount( $0 );

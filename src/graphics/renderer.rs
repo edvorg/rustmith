@@ -22,6 +22,32 @@ pub struct Renderer {
     pub height: f32,
 }
 
+trait Viewport {
+    fn setViewportWidth(&self, width: f32);
+    fn setViewportHeight(&self, height: f32);
+    fn update_size(&self, size: (f32, f32));
+}
+
+impl Viewport for gl {
+    fn setViewportWidth(&self, width: f32) {
+        js! (
+            @{self}.viewportWidth = @{width};
+        );
+    }
+
+    fn setViewportHeight(&self, height: f32) {
+        js! (
+            @{self}.viewportHeight = @{height};
+        );
+    }
+
+    fn update_size(&self, size: (f32, f32)) {
+        let (width, height) = size;
+        self.setViewportWidth(width);
+        self.setViewportHeight(height);
+    }
+}
+
 impl Renderer {
     pub fn render(&mut self, delta: f64) {
         self.context.clear_color(1.0, 0.0, 0.0, 1.0);
@@ -44,6 +70,7 @@ impl Renderer {
     }
 
     pub fn set_viewport(&mut self, width: f32, height: f32) {
+        self.context.update_size((width, height));
         self.width = width;
         self.height = height;
     }
@@ -53,6 +80,7 @@ impl Renderer {
     }
 
     pub fn new(context: gl, size: (f32, f32)) -> Self {
+        context.update_size(size);
         let (width, height) = size;
         let vert_shader = context.create_shader(gl::VERTEX_SHADER).unwrap();
         context.shader_source(&vert_shader, shaders::VERTEX_CODE);

@@ -123,6 +123,32 @@ impl Renderable<Registry, GameModel> for GameModel {
     }
 }
 
+trait HiDPI {
+    fn devicePixelRatio() -> f64;
+    fn clientWidth(&self) -> f64;
+    fn clientHeight(&self) -> f64;
+}
+
+impl HiDPI for CanvasElement {
+    fn devicePixelRatio() -> f64 {
+        js! (
+          return window.devicePixelRatio;
+        ).try_into().unwrap()
+    }
+
+    fn clientWidth(&self) -> f64 {
+        js! (
+            return @{self}.clientWidth;
+        ).try_into().unwrap()
+    }
+
+    fn clientHeight(&self) -> f64 {
+        js! (
+            return @{self}.clientHeight;
+        ).try_into().unwrap()
+    }
+}
+
 impl GameModel {
     fn animate(env: &mut Env<Registry, Self>) -> Box<Task> {
         let send_back = env.send_back(|time| GameMessage::Animate { time });
@@ -130,9 +156,13 @@ impl GameModel {
     }
 
     fn update_canvas(canvas: &mut CanvasElement) {
-//        FIXME implement correct canvas update logic
-//        canvas.set_width(canvas.offset_width() as u32);
-//        canvas.set_height(canvas.offset_height() as u32);
+        let real_to_css_pixels = CanvasElement::devicePixelRatio();
+        let display_width  = (canvas.clientWidth() * real_to_css_pixels).floor() as u32;
+        let display_height = (canvas.clientHeight() * real_to_css_pixels).floor() as u32;
+        if canvas.width()  != display_width || canvas.height() != display_height {
+            canvas.set_width(display_width);
+            canvas.set_height(display_height);
+        }
     }
 
     fn get_canvas_size(canvas: &CanvasElement) -> (f32, f32) {

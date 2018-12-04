@@ -73,7 +73,7 @@ impl StubSearchService {
             .map(move |((name, url), b)| {
                 SearchItem {
                     name: name,
-                    url: url + "?autoplay=1",
+                    url: url + "?autoplay=1&loop=1",
                     id: b.to_string(),
                 }
             }).collect();

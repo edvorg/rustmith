@@ -18,6 +18,7 @@ mod services {
     pub mod search;
     pub mod render;
     pub mod audio;
+    pub mod ext;
 }
 
 mod graphics {

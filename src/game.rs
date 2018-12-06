@@ -20,8 +20,7 @@ use services::audio::{
     AudioNode,
     MediaStreamSource,
 };
-
-static C2: f32 = 65.41;
+use services::ext::HiDPI;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -193,32 +192,6 @@ impl Renderable<Registry, GameModel> for GameModel {
             { self.effects_view() }
           </div>
         }
-    }
-}
-
-trait HiDPI {
-    fn device_pixel_ratio() -> f64;
-    fn client_width(&self) -> f64;
-    fn client_height(&self) -> f64;
-}
-
-impl HiDPI for CanvasElement {
-    fn device_pixel_ratio() -> f64 {
-        js! (
-          return window.devicePixelRatio;
-        ).try_into().unwrap()
-    }
-
-    fn client_width(&self) -> f64 {
-        js! (
-            return @{self}.clientWidth;
-        ).try_into().unwrap()
-    }
-
-    fn client_height(&self) -> f64 {
-        js! (
-            return @{self}.clientHeight;
-        ).try_into().unwrap()
     }
 }
 

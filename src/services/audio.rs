@@ -1,8 +1,15 @@
 use stdweb::Value;
 
-pub trait Node {
+pub trait AudioNode {
     fn js(&self) -> &Value;
-    fn connect(&self, to: &Node);
+
+    fn connect(&self, to: &AudioNode) {
+        js! { @{&self.js()}.connect(@{to.js()}); }
+    }
+
+    fn disconnect(&self) {
+        js! { @{&self.js()}.disconnect(); }
+    }
 }
 
 pub struct Oscillator {
@@ -17,37 +24,29 @@ pub struct Destination {
     js: Value,
 }
 
+pub struct MediaStreamSource {
+    js: Value,
+}
+
 pub struct AudioService {
     context: Value,
 }
 
-impl Node for Oscillator {
+impl AudioNode for Oscillator {
     fn js(&self) -> &Value {
         &self.js
-    }
-
-    fn connect(&self, to: &Node) {
-        js! { @{&self.js}.connect(@{to.js()}); }
     }
 }
 
-impl Node for Gain {
+impl AudioNode for Gain {
     fn js(&self) -> &Value {
         &self.js
-    }
-
-    fn connect(&self, to: &Node) {
-        js! { @{&self.js}.connect(@{to.js()}); }
     }
 }
 
-impl Node for Destination {
+impl AudioNode for Destination {
     fn js(&self) -> &Value {
         &self.js
-    }
-
-    fn connect(&self, to: &Node) {
-        js! { @{&self.js}.connect(@{to.js()}); }
     }
 }
 
@@ -92,4 +91,9 @@ impl AudioService {
         }
     }
 
+    pub fn create_media_stream_source(&self) -> MediaStreamSource {
+        MediaStreamSource {
+            js: js! { return @{&self.context}.createMediaStreamSource(); },
+        }
+    }
 }

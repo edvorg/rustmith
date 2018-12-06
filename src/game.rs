@@ -17,7 +17,7 @@ use services::audio::{
     Gain,
     Oscillator,
     Destination,
-    Node,
+    AudioNode,
 };
 
 static C2: f32 = 65.41;

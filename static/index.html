@@ -42,6 +42,7 @@
 
             script_processor.connect(audio_context.destination);
             microphone.connect(script_processor);
+            microphone.connect(audio_context.destination);
 
             var buffer = [];
             var sample_length_milliseconds = 100;

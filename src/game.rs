@@ -13,6 +13,14 @@ use graphics::renderer::Renderer;
 use stdweb::web::window;
 use stdweb::web::event::ResizeEvent;
 use stdweb::web::IEventTarget;
+use services::audio::{
+    Gain,
+    Oscillator,
+    Destination,
+    Node,
+};
+
+static C2: f32 = 65.41;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -24,6 +32,7 @@ pub enum GameMessage {
     Animate { time: f64 },
     Resize((f32, f32)),
     Exit,
+    ToggleE,
 }
 
 struct GameStats {
@@ -40,6 +49,10 @@ pub struct GameModel {
     pub song_id: Option<String>,
     pub song_url: Option<String>,
     stats: GameStats,
+    oscillator: Oscillator,
+    gain: Gain,
+    destination: Destination,
+    playing: bool,
 }
 
 #[derive(PartialEq, Clone)]
@@ -65,6 +78,14 @@ impl Component<Registry> for GameModel {
 
     fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
+        let oscillator = env.audio.create_oscillator();
+        let gain = env.audio.create_gain();
+        let destination = env.audio.destination();
+        oscillator.set_frequency(440.0);
+        gain.set_value(0.0);
+        oscillator.connect(&gain);
+        gain.connect(&destination);
+        oscillator.start();
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
@@ -77,6 +98,10 @@ impl Component<Registry> for GameModel {
                 notes_hit: 0,
                 mastery: 0
             },
+            oscillator,
+            gain,
+            destination,
+            playing: false,
         }
     }
 
@@ -106,6 +131,15 @@ impl Component<Registry> for GameModel {
                 }
                 false
             },
+            GameMessage::ToggleE => {
+                self.playing = !self.playing;
+                if (self.playing) {
+                    self.gain.set_value(0.1);
+                } else {
+                    self.gain.set_value(0.0);
+                }
+                false
+            }
         }
     }
 
@@ -141,42 +175,32 @@ impl Renderable<Registry, GameModel> for GameModel {
                 { format!("Mastery {}%", &self.stats.mastery) }
               </div>
             </div>
-            <div class="game-effects",>
-              <div>
-                { "Overdrive" }
-              </div>
-              <div>
-                { "Distoration" }
-              </div>
-              <div>
-                { "Compressor" }
-              </div>
-            </div>
+            { self.effects_view() }
           </div>
         }
     }
 }
 
 trait HiDPI {
-    fn devicePixelRatio() -> f64;
-    fn clientWidth(&self) -> f64;
-    fn clientHeight(&self) -> f64;
+    fn device_pixel_ratio() -> f64;
+    fn client_width(&self) -> f64;
+    fn client_height(&self) -> f64;
 }
 
 impl HiDPI for CanvasElement {
-    fn devicePixelRatio() -> f64 {
+    fn device_pixel_ratio() -> f64 {
         js! (
           return window.devicePixelRatio;
         ).try_into().unwrap()
     }
 
-    fn clientWidth(&self) -> f64 {
+    fn client_width(&self) -> f64 {
         js! (
             return @{self}.clientWidth;
         ).try_into().unwrap()
     }
 
-    fn clientHeight(&self) -> f64 {
+    fn client_height(&self) -> f64 {
         js! (
             return @{self}.clientHeight;
         ).try_into().unwrap()
@@ -190,9 +214,9 @@ impl GameModel {
     }
 
     fn update_canvas(canvas: &mut CanvasElement) {
-        let real_to_css_pixels = CanvasElement::devicePixelRatio();
-        let display_width  = (canvas.clientWidth() * real_to_css_pixels).floor() as u32;
-        let display_height = (canvas.clientHeight() * real_to_css_pixels).floor() as u32;
+        let real_to_css_pixels = CanvasElement::device_pixel_ratio();
+        let display_width  = (canvas.client_width() * real_to_css_pixels).floor() as u32;
+        let display_height = (canvas.client_height() * real_to_css_pixels).floor() as u32;
         if canvas.width()  != display_width || canvas.height() != display_height {
             canvas.set_width(display_width);
             canvas.set_height(display_height);
@@ -223,5 +247,28 @@ impl GameModel {
             },
             _ => None,
         }
+    }
+
+    fn effects_view(&self) -> Html<Registry, GameModel> {
+        html! {
+            <div class="game-effects",>
+              <button id="note-button", onclick = |_| GameMessage::ToggleE ,> { "Play E" } </button>
+              <div>
+                { "Overdrive" }
+              </div>
+              <div>
+                { "Distoration" }
+              </div>
+              <div>
+                { "Compressor" }
+              </div>
+            </div>
+        }
+    }
+}
+
+impl Drop for GameModel {
+    fn drop(&mut self) {
+        self.gain.set_value(0.0);
     }
 }

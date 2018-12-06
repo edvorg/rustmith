@@ -23,19 +23,19 @@ pub struct Renderer {
 }
 
 trait Viewport {
-    fn setViewportWidth(&self, width: f32);
-    fn setViewportHeight(&self, height: f32);
+    fn set_viewport_width(&self, width: f32);
+    fn set_viewport_height(&self, height: f32);
     fn update_size(&self, size: (f32, f32));
 }
 
 impl Viewport for gl {
-    fn setViewportWidth(&self, width: f32) {
+    fn set_viewport_width(&self, width: f32) {
         js! (
             @{self}.viewportWidth = @{width};
         );
     }
 
-    fn setViewportHeight(&self, height: f32) {
+    fn set_viewport_height(&self, height: f32) {
         js! (
             @{self}.viewportHeight = @{height};
         );
@@ -43,8 +43,8 @@ impl Viewport for gl {
 
     fn update_size(&self, size: (f32, f32)) {
         let (width, height) = size;
-        self.setViewportWidth(width);
-        self.setViewportHeight(height);
+        self.set_viewport_width(width);
+        self.set_viewport_height(height);
     }
 }
 

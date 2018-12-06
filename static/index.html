@@ -31,8 +31,6 @@
             get_user_media = get_user_media || navigator.webkitGetUserMedia;
             get_user_media = get_user_media || navigator.mozGetUserMedia;
             get_user_media.call(navigator, { "audio": true }, use_stream, function() {});
-
-            document.getElementById("play-note").addEventListener("click", toggle_playing_note);
         }
 
         function use_stream(stream)
@@ -113,26 +111,6 @@
                 document.getElementById("note-name").textContent = dominant_frequency.name;
                 document.getElementById("frequency").textContent = dominant_frequency.frequency;
             }
-        }
-
-        // Unnecessary addition of button to play an E note.
-        var note_context = new AudioContext();
-        var note_node = note_context.createOscillator();
-        var gain_node = note_context.createGain();
-        note_node.frequency = C2 * Math.pow(2, 4 / 12); // E, ~82.41 Hz.
-        gain_node.gain.value = 0;
-        note_node.connect(gain_node);
-        gain_node.connect(note_context.destination);
-        note_node.start();
-
-        var playing = false;
-        function toggle_playing_note()
-        {
-            playing = !playing;
-            if (playing)
-                gain_node.gain.value = 0.1;
-            else
-                gain_node.gain.value = 0;
         }
     </script>
     </head>

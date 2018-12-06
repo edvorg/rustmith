@@ -18,6 +18,7 @@ use services::audio::{
     Oscillator,
     Destination,
     AudioNode,
+    MediaStreamSource,
 };
 
 static C2: f32 = 65.41;
@@ -33,6 +34,7 @@ pub enum GameMessage {
     Resize((f32, f32)),
     Exit,
     ToggleE,
+    ConnectMicrophone(MediaStreamSource)
 }
 
 struct GameStats {
@@ -53,6 +55,7 @@ pub struct GameModel {
     gain: Gain,
     destination: Destination,
     playing: bool,
+    mic: Option<MediaStreamSource>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -86,6 +89,10 @@ impl Component<Registry> for GameModel {
         oscillator.connect(&gain);
         gain.connect(&destination);
         oscillator.start();
+        let callback = env.send_back(|source| {
+            return GameMessage::ConnectMicrophone(source);
+        });
+        env.audio.create_media_stream_source_audio(callback);
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
@@ -102,6 +109,7 @@ impl Component<Registry> for GameModel {
             gain,
             destination,
             playing: false,
+            mic: None,
         }
     }
 
@@ -139,7 +147,14 @@ impl Component<Registry> for GameModel {
                     self.gain.set_value(0.0);
                 }
                 false
-            }
+            },
+            GameMessage::ConnectMicrophone(mic) => {
+                env.console.log("Established mic connection");
+                let js = mic.js().clone();
+                js! { use_stream(@{js}); };
+                self.mic = Some(mic);
+                false
+            },
         }
     }
 

@@ -20,18 +20,8 @@
             test_frequencies = test_frequencies.concat([ just_below, note, just_above ]);
         }
 
-        window.addEventListener("load", initialize);
-
         var correlation_worker = new Worker("correlation_worker.js");
         correlation_worker.addEventListener("message", interpret_correlation_result);
-
-        function initialize()
-        {
-            var get_user_media = navigator.getUserMedia;
-            get_user_media = get_user_media || navigator.webkitGetUserMedia;
-            get_user_media = get_user_media || navigator.mozGetUserMedia;
-            get_user_media.call(navigator, { "audio": true }, use_stream, function() {});
-        }
 
         function use_stream(stream)
         {

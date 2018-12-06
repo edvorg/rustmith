@@ -1,4 +1,5 @@
 use stdweb::Value;
+use yew::prelude::*;
 
 pub trait AudioNode {
     fn js(&self) -> &Value;
@@ -54,6 +55,18 @@ impl AudioNode for Destination {
     }
 }
 
+impl AudioNode for MediaStreamSource {
+    fn js(&self) -> &Value {
+        &self.js
+    }
+}
+
+impl AudioNode for ScriptProcessor {
+    fn js(&self) -> &Value {
+        &self.js
+    }
+}
+
 impl Oscillator {
     pub fn set_frequency(&self, value: f32) {
         js! { @{&self.js}.frequency.value = @{value}; }
@@ -95,13 +108,23 @@ impl AudioService {
         }
     }
 
-    pub fn create_media_stream_source(&self) -> MediaStreamSource {
-        MediaStreamSource {
-            js: js! { return @{&self.context}.createMediaStreamSource(); },
+    pub fn create_media_stream_source_audio(&self, callback: Callback<MediaStreamSource>) {
+        let callback = move |v| {
+            callback.emit(
+                MediaStreamSource {
+                    js: v,
+                }
+            )
+        };
+        js! {
+            var get_user_media = navigator.getUserMedia;
+            get_user_media = get_user_media || navigator.webkitGetUserMedia;
+            get_user_media = get_user_media || navigator.mozGetUserMedia;
+            get_user_media.call(navigator, { "audio": true }, @{callback}, function() {});
         }
     }
 
-    pub fn createScriptProcessor(&self) -> ScriptProcessor {
+    pub fn create_script_processor(&self) -> ScriptProcessor {
         ScriptProcessor {
             js: js! { return @{&self.context}.createScriptProcessor(); },
         }

@@ -28,6 +28,10 @@ pub struct MediaStreamSource {
     js: Value,
 }
 
+pub struct ScriptProcessor {
+    js: Value,
+}
+
 pub struct AudioService {
     context: Value,
 }
@@ -94,6 +98,12 @@ impl AudioService {
     pub fn create_media_stream_source(&self) -> MediaStreamSource {
         MediaStreamSource {
             js: js! { return @{&self.context}.createMediaStreamSource(); },
+        }
+    }
+
+    pub fn createScriptProcessor(&self) -> ScriptProcessor {
+        ScriptProcessor {
+            js: js! { return @{&self.context}.createScriptProcessor(); },
         }
     }
 }

@@ -13,6 +13,7 @@ mod registry;
 mod root;
 mod search;
 mod game;
+mod fps;
 
 mod services {
     pub mod search;

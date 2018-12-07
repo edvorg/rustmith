@@ -21,6 +21,7 @@ use crate::services::audio::{
     MediaStreamSource,
 };
 use crate::services::ext::HiDPI;
+use crate::fps::FpsModel;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -55,6 +56,8 @@ pub struct GameModel {
     destination: Destination,
     playing: bool,
     mic: Option<MediaStreamSource>,
+    fps: FpsModel,
+    fps_snapshot: FpsModel,
 }
 
 #[derive(PartialEq, Clone)]
@@ -109,6 +112,8 @@ impl Component<Registry> for GameModel {
             destination,
             playing: false,
             mic: None,
+            fps: FpsModel::new(),
+            fps_snapshot: FpsModel::new(),
         }
     }
 
@@ -119,11 +124,19 @@ impl Component<Registry> for GameModel {
                     self.renderer = self.setup_graphics(env);
                 }
                 if let Some(r) = &mut self.renderer {
-                    r.render((self.last_time.unwrap_or(time) - time) / 1000.0);
+                    let delta_millis = time - self.last_time.unwrap_or(time);
+                    r.render(delta_millis / 1000.0);
+                    self.fps.log_frame(delta_millis);
                 }
                 self.job = GameModel::animate(env);
                 self.last_time = Some(time);
-                false
+                if self.fps.time > 3000.0 {
+                    self.fps_snapshot.reset();
+                    std::mem::swap(&mut self.fps, &mut self.fps_snapshot);
+                    true
+                } else {
+                    false
+                }
             },
             GameMessage::Exit => {
                 if let Some(callback) = &self.on_signal {
@@ -167,6 +180,8 @@ impl Renderable<Registry, GameModel> for GameModel {
           <div class="game",>
             <div class="game-view",>
               <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
+              <div id="fps",> { format!("avg. fps {}", &self.fps_snapshot.average_fps()) } </div>
+              <div id="delta",> { format!("avg. delta (ms) {}", &self.fps_snapshot.average_frame_time()) } </div>
               <canvas id="canvas",></canvas>
             </div>
             <div class="game-video",>

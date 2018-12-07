@@ -104,7 +104,20 @@ body {
   z-index: 100;
   position: absolute;
   left: 0px;
-  right: 0px;
+}
+
+#fps {
+  z-index: 100;
+  position: absolute;
+  left: 0px;
+  top: 20px;
+}
+
+#delta {
+  z-index: 100;
+  position: absolute;
+  left: 0px;
+  top: 40px;
 }
 
 .game {

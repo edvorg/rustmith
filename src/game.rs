@@ -184,6 +184,8 @@ impl Component<Registry> for GameModel {
                 let delta_millis = time - self.last_time.unwrap_or(time);
                 if let Some(r) = &mut self.renderer {
                     r.render(delta_millis / 1000.0);
+                } else {
+                    env.console.warn("Something is wrong, renderer not found");
                 }
                 self.job = GameModel::animate(env);
                 self.last_time = Some(time);
@@ -199,6 +201,8 @@ impl Component<Registry> for GameModel {
             GameMessage::Exit => {
                 if let Some(callback) = &self.on_signal {
                     callback.emit(RoutingMessage::ExitGame);
+                } else {
+                    env.console.warn("Something is wrong, router not found");
                 }
                 false
             },
@@ -206,6 +210,8 @@ impl Component<Registry> for GameModel {
                 env.console.log(&format!("Canvas resized ({}, {})", width, height));
                 if let Some(r) = &mut self.renderer {
                     r.set_viewport(width, height);
+                } else {
+                    env.console.warn("Something is wrong, renderer not found");
                 }
                 false
             },
@@ -272,6 +278,8 @@ impl Component<Registry> for GameModel {
                             env.timeout.spawn(Duration::from_millis(250), delay)
                         )
                     );
+                } else {
+                    env.console.warn("Something is wrong, correlation worker not found");
                 }
                 false
             },

@@ -2,9 +2,12 @@ use stdweb::web::html_element::CanvasElement;
 use stdweb::unstable::TryInto;
 use webgl_rendering_context::WebGLRenderingContext;
 use stdweb::web::Window;
+use crate::services::audio::MediaStreamSource;
+use crate::services::audio::AudioNode;
 
 pub trait WindowExt {
     fn device_pixel_ratio(&self) -> f64;
+    fn set_source(&self, source: &MediaStreamSource);
 }
 
 impl WindowExt for Window {
@@ -12,6 +15,12 @@ impl WindowExt for Window {
         js! (
           return @{self}.devicePixelRatio;
         ).try_into().unwrap()
+    }
+
+    fn set_source(&self, source: &MediaStreamSource) {
+        js! {
+            @{self}.source = @{&source.js()};
+        }
     }
 }
 

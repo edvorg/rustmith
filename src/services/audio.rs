@@ -1,5 +1,6 @@
 use stdweb::Value;
 use yew::prelude::*;
+use stdweb::unstable::TryInto;
 
 pub trait AudioNode {
     fn js(&self) -> &Value;
@@ -30,6 +31,14 @@ pub struct MediaStreamSource {
 }
 
 pub struct ScriptProcessor {
+    js: Value,
+}
+
+pub struct GetUserMedia {
+    js: Value,
+}
+
+pub struct MediaStream {
     js: Value,
 }
 
@@ -64,6 +73,21 @@ impl AudioNode for MediaStreamSource {
 impl AudioNode for ScriptProcessor {
     fn js(&self) -> &Value {
         &self.js
+    }
+}
+
+impl GetUserMedia {
+    pub fn call_audio(&self, callback: Callback<MediaStream>) {
+        let callback = move |v| {
+            callback.emit(
+                MediaStream {
+                    js: v,
+                }
+            )
+        };
+        js! {
+            @{&self.js}.call(navigator, { "audio": true }, @{callback}, function() {});
+        }
     }
 }
 
@@ -108,25 +132,32 @@ impl AudioService {
         }
     }
 
-    pub fn create_media_stream_source_audio(&self, callback: Callback<MediaStreamSource>) {
-        let callback = move |v| {
-            callback.emit(
-                MediaStreamSource {
-                    js: v,
-                }
-            )
-        };
-        js! {
-            var get_user_media = navigator.getUserMedia;
-            get_user_media = get_user_media || navigator.webkitGetUserMedia;
-            get_user_media = get_user_media || navigator.mozGetUserMedia;
-            get_user_media.call(navigator, { "audio": true }, @{callback}, function() {});
+    pub fn sample_rate(&self) -> f64 {
+        js! (
+          return @{&self.context}.sampleRate;
+        ).try_into().unwrap()
+    }
+
+    pub fn create_script_processor(&self, buffer_size: i32, input_channels: i32, output_channels: i32) -> ScriptProcessor {
+        ScriptProcessor {
+            js: js! { return @{&self.context}.createScriptProcessor(@{buffer_size}, @{input_channels}, @{output_channels}); },
         }
     }
 
-    pub fn create_script_processor(&self) -> ScriptProcessor {
-        ScriptProcessor {
-            js: js! { return @{&self.context}.createScriptProcessor(); },
+    pub fn get_user_media(&self) -> GetUserMedia {
+        GetUserMedia {
+            js: js! {
+                var get_user_media = navigator.getUserMedia;
+                get_user_media = get_user_media || navigator.webkitGetUserMedia;
+                get_user_media = get_user_media || navigator.mozGetUserMedia;
+                return get_user_media
+            }
+        }
+    }
+
+    pub fn create_media_stream_source(&self, stream: MediaStream) -> MediaStreamSource {
+        MediaStreamSource {
+            js: js! { return @{&self.context}.createMediaStreamSource(@{&stream.js}); },
         }
     }
 }

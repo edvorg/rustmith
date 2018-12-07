@@ -23,6 +23,8 @@ use crate::services::audio::{
 use crate::services::ext::CanvasElementExt;
 use crate::fps::FpsStats;
 use crate::fps::FpsModel;
+use crate::services::audio::MediaStream;
+use crate::services::ext::WindowExt;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -35,7 +37,7 @@ pub enum GameMessage {
     Resize((f32, f32)),
     Exit,
     ToggleE,
-    ConnectMicrophone(MediaStreamSource)
+    ConnectMicrophone(MediaStream)
 }
 
 struct GameStats {
@@ -95,7 +97,7 @@ impl Component<Registry> for GameModel {
         let callback = env.send_back(|source| {
             return GameMessage::ConnectMicrophone(source);
         });
-        env.audio.create_media_stream_source_audio(callback);
+        env.audio.get_user_media().call_audio(callback);
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
@@ -163,7 +165,14 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
-                js! { use_stream(@{&mic.js()}); };
+                let mic = env.audio.create_media_stream_source(mic);
+                window().set_source(&mic);
+                let script_processor = env.audio.create_script_processor(1024, 1, 1);
+                script_processor.connect(&env.audio.destination());
+                mic.connect(&script_processor);
+                mic.connect(&env.audio.destination());
+                let sample_rate = env.audio.sample_rate();
+                js! { use_stream(@{&script_processor.js()}, @{sample_rate}); };
                 self.mic = Some(mic);
                 false
             },

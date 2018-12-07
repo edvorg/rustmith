@@ -6,22 +6,7 @@
     <link href="index.css" rel="stylesheet" type="text/css">
     <script src="rustmith.js"></script>
     <script>
-        // Define the set of test frequencies that we'll use to analyze microphone data.
-        var C2 = 65.41; // C2 note, in Hz.
-        var notes = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ];
-        var test_frequencies = [];
-        for (var i = 0; i < 30; i++)
-        {
-            var note_frequency = C2 * Math.pow(2, i / 12);
-            var note_name = notes[i % 12];
-            var note = { "frequency": note_frequency, "name": note_name };
-            var just_above = { "frequency": note_frequency * Math.pow(2, 1 / 48), "name": note_name + " (a bit sharp)" };
-            var just_below = { "frequency": note_frequency * Math.pow(2, -1 / 48), "name": note_name + " (a bit flat)" };
-            test_frequencies = test_frequencies.concat([ just_below, note, just_above ]);
-        }
-        window.test_frequencies = test_frequencies;
-
-        function interpret_correlation_result(event)
+        function interpret_correlation_result(event, test_frequencies)
         {
             var timeseries = event.data.timeseries;
             var frequency_amplitudes = event.data.frequency_amplitudes;

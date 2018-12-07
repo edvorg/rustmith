@@ -32,6 +32,7 @@ use crate::services::worker::Worker;
 use crate::services::audio::AudioProcessingEvent;
 use std::time::Duration;
 use stdweb::Array;
+use std::ops::Range;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -58,6 +59,14 @@ struct GameStats {
     mastery: u16,
 }
 
+#[derive(Serialize)]
+struct Note {
+    frequency: f64,
+    name: String,
+}
+
+js_serializable!( Note );
+
 pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
@@ -66,6 +75,7 @@ pub struct GameModel {
     song_id: Option<String>,
     song_url: Option<String>,
     stats: GameStats,
+    test_frequencies: Vec<Note>,
     oscillator: Oscillator,
     gain: Gain,
     destination: Destination,
@@ -103,6 +113,28 @@ impl Component<Registry> for GameModel {
 
     fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
+        let c2 = 65.41f64;
+        let notes = vec!("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B");
+        let r: Vec<_> = (0..30).collect();
+        let test_frequencies: Vec<Note> = r.into_iter().flat_map(|i| {
+            let frequency = c2 * 2.0f64.powf(i as f64 / 12.0);
+            let name = String::from(notes[i % 12]);
+            let above_name = format!("{} (a bit sharp)", &name);
+            let below_name = format!("{} (a bit flat)", &name);
+            let note = Note {
+                frequency,
+                name,
+            };
+            let just_above = Note {
+                frequency: frequency * 2.0f64.powf(1.0 / 48.0),
+                name: above_name
+            };
+            let just_below = Note {
+                frequency: frequency * 2.0f64.powf(-1.0 / 48.0),
+                name: below_name
+            };
+            vec!(just_below, note, just_above)
+        }).collect();
         let oscillator = env.audio.create_oscillator();
         let gain = env.audio.create_gain();
         let destination = env.audio.destination();
@@ -127,6 +159,7 @@ impl Component<Registry> for GameModel {
                 notes_hit: 0,
                 mastery: 0
             },
+            test_frequencies,
             oscillator,
             gain,
             destination,
@@ -187,6 +220,7 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
+                js! { window.test_frequencies = @{&self.test_frequencies}; };
                 let correlation_worker = Worker::new("correlation_worker.js");
                 let on_event = env.send_back(|e| {
                     return GameMessage::InterpretCorrelation(e)
@@ -242,7 +276,7 @@ impl Component<Registry> for GameModel {
                 false
             },
             GameMessage::InterpretCorrelation(e) => {
-                js! { window.interpret_correlation_result(@{e}); };
+                js! { window.interpret_correlation_result(@{e}, @{&self.test_frequencies}); };
                 false
             },
             GameMessage::ContinueAudioProcess => {

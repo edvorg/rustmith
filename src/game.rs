@@ -149,8 +149,7 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
-                let js = mic.js().clone();
-                js! { use_stream(@{js}); };
+                js! { use_stream(@{&mic.js()}); };
                 self.mic = Some(mic);
                 false
             },
@@ -164,16 +163,15 @@ impl Component<Registry> for GameModel {
 
 impl Renderable<Registry, GameModel> for GameModel {
     fn view(&self) -> Html<Registry, GameModel> {
-        let url = self.song_url.clone().unwrap();
         html! {
           <div class="game",>
-            <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
             <div class="game-view",>
+              <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
               <canvas id="canvas",></canvas>
             </div>
             <div class="game-video",>
               <iframe id="video-clip",
-                      src=url.clone(),
+                      src=&self.song_url.clone().unwrap(),
                       frameborder="0",
                       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
               </iframe>

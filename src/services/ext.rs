@@ -4,10 +4,12 @@ use webgl_rendering_context::WebGLRenderingContext;
 use stdweb::web::Window;
 use crate::services::audio::MediaStreamSource;
 use crate::services::audio::AudioNode;
+use crate::game::Note;
 
 pub trait WindowExt {
     fn device_pixel_ratio(&self) -> f64;
     fn set_source(&self, source: &MediaStreamSource);
+    fn set_test_frequencies(&self, test_frequencies: &Vec<Note>);
 }
 
 impl WindowExt for Window {
@@ -21,6 +23,12 @@ impl WindowExt for Window {
         js! {
             @{self}.source = @{&source.js()};
         }
+    }
+
+    fn set_test_frequencies(&self, test_frequencies: &Vec<Note>) {
+        js! {
+            @{self}.test_frequencies = @{test_frequencies};
+        };
     }
 }
 

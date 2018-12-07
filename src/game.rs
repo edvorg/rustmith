@@ -60,7 +60,7 @@ struct GameStats {
 }
 
 #[derive(Serialize)]
-struct Note {
+pub struct Note {
     frequency: f64,
     name: String,
 }
@@ -220,7 +220,7 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
-                js! { window.test_frequencies = @{&self.test_frequencies}; };
+                window().set_test_frequencies(&self.test_frequencies);
                 let correlation_worker = Worker::new("correlation_worker.js");
                 let on_event = env.send_back(|e| {
                     return GameMessage::InterpretCorrelation(e)

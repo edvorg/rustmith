@@ -24,4 +24,10 @@ impl Worker {
     pub fn js(&self) -> &Value {
         &self.js
     }
+
+    pub fn post_message(&self, message: Value) {
+        js! {
+            @{&self.js}.postMessage(@{message});
+        }
+    }
 }

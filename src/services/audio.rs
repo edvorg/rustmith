@@ -46,6 +46,18 @@ pub struct AudioService {
     context: Value,
 }
 
+pub struct AudioProcessingEvent {
+    js: Value,
+}
+
+pub struct InputBuffer {
+    js: Value,
+}
+
+pub struct Array {
+    js: Value,
+}
+
 impl AudioNode for Oscillator {
     fn js(&self) -> &Value {
         &self.js
@@ -101,11 +113,59 @@ impl Oscillator {
     }
 }
 
+impl AudioProcessingEvent {
+    pub fn input_buffer(&self) -> InputBuffer {
+        InputBuffer {
+            js: js! { return @{&self.js}.inputBuffer; },
+        }
+    }
+}
+
+impl InputBuffer {
+    pub fn get_channel_data_buffer(&self, channel: u8) -> Array {
+        Array {
+            js: js! {
+                var data = @{&self.js}.getChannelData(@{channel});
+                var buffer = [];
+                return buffer.concat(Array.prototype.slice.call(data));
+            },
+        }
+    }
+}
+
+impl Array {
+    pub fn new() -> Array {
+        Array {
+            js: js! { return []; },
+        }
+    }
+
+    pub fn concat(&self, with: Array) -> Array {
+        Array {
+            js: js! { return @{&self.js}.concat(@{with.js}); },
+        }
+    }
+
+    pub fn length(&self) -> usize {
+        js! (
+          return @{&self.js}.length;
+        ).try_into().unwrap()
+    }
+
+    pub fn js(&self) -> &Value {
+        return &self.js
+    }
+}
+
 impl ScriptProcessor {
-    pub fn set_onaudioprocess(&self, callback: Callback<Value>) {
+    pub fn set_onaudioprocess(&self, callback: Callback<AudioProcessingEvent>) {
         // FIXME possibly memory leak? do we have to drop callback manually?
         let callback = move |v| {
-            callback.emit(v);
+            callback.emit(
+                AudioProcessingEvent {
+                    js: v,
+                }
+            );
         };
         js! {
             var callback = @{callback};

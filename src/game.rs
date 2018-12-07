@@ -28,6 +28,9 @@ use crate::services::ext::WindowExt;
 use crate::services::audio::ScriptProcessor;
 use stdweb::Value;
 use crate::services::worker::Worker;
+use crate::services::audio::AudioProcessingEvent;
+use crate::services::audio::Array;
+use std::time::Duration;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -43,7 +46,8 @@ pub enum GameMessage {
     Exit,
     ToggleE,
     ConnectMicrophone(MediaStream),
-    AudioProcess(Value),
+    AudioProcess(AudioProcessingEvent),
+    ContinueAudioProcess,
     InterpretCorrelation(Value),
 }
 
@@ -57,9 +61,9 @@ pub struct GameModel {
     job: Box<Task>,
     renderer: Option<renderer::Renderer>,
     last_time: Option<f64>,
-    pub on_signal: Option<Callback<RoutingMessage>>,
-    pub song_id: Option<String>,
-    pub song_url: Option<String>,
+    on_signal: Option<Callback<RoutingMessage>>,
+    song_id: Option<String>,
+    song_url: Option<String>,
     stats: GameStats,
     oscillator: Oscillator,
     gain: Gain,
@@ -68,6 +72,9 @@ pub struct GameModel {
     mic: Option<MediaStreamSource>,
     script_processor: Option<ScriptProcessor>,
     correlation_worker: Option<Worker>,
+    buffer: Array,
+    recording: bool,
+    recording_job: Option<Box<Task>>,
     fps: FpsStats,
     fps_snapshot: FpsStats,
 }
@@ -126,6 +133,9 @@ impl Component<Registry> for GameModel {
             mic: None,
             script_processor: None,
             correlation_worker: None,
+            buffer: Array::new(),
+            recording: false,
+            recording_job: None,
             fps: FpsStats::new(),
             fps_snapshot: FpsStats::new(),
         }
@@ -188,21 +198,55 @@ impl Component<Registry> for GameModel {
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
                 let sample_rate = env.audio.sample_rate();
-                js! { use_stream(@{&script_processor.js()}, @{sample_rate}, @{SAMPLE_LENGTH_MILLIS}, @{&correlation_worker.js()}); };
                 script_processor.set_onaudioprocess(env.send_back(|v| {
                     GameMessage::AudioProcess(v)
                 }));
                 self.mic = Some(mic);
                 self.script_processor = Some(script_processor);
                 self.correlation_worker = Some(correlation_worker);
+                self.recording = true;
+                self.buffer = Array::new();
                 false
             },
             GameMessage::AudioProcess(v) => {
-                js! { window.capture_audio(@{v}); };
+                if !self.recording {
+                    return false
+                }
+                let new_buffer = self.buffer.concat(v.input_buffer().get_channel_data_buffer(0));
+                self.buffer = new_buffer;
+                let sample_rate = env.audio.sample_rate();
+                if self.buffer.length() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
+                    return false
+                }
+                self.recording = false;
+                if let Some(w) = &self.correlation_worker {
+                    w.post_message(
+                        js! {
+                            return {
+                                "timeseries": @{&self.buffer.js()},
+                                "test_frequencies": window.test_frequencies,
+                                "sample_rate": @{sample_rate},
+                            };
+                        }
+                    );
+                    self.buffer = Array::new();
+                    let delay = env.send_back(|_| {
+                        GameMessage::ContinueAudioProcess
+                    });
+                    self.recording_job = Some(
+                        Box::new(
+                            env.timeout.spawn(Duration::from_millis(250), delay)
+                        )
+                    );
+                }
                 false
             },
             GameMessage::InterpretCorrelation(e) => {
                 js! { window.interpret_correlation_result(@{e}); };
+                false
+            },
+            GameMessage::ContinueAudioProcess => {
+                self.recording = true;
                 false
             },
         }

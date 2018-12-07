@@ -19,41 +19,7 @@
             var just_below = { "frequency": note_frequency * Math.pow(2, -1 / 48), "name": note_name + " (a bit flat)" };
             test_frequencies = test_frequencies.concat([ just_below, note, just_above ]);
         }
-
-        function use_stream(script_processor, sampleRate, sample_length_milliseconds, correlation_worker)
-        {
-            var buffer = [];
-            var recording = true;
-
-            // Need to leak this function into the global namespace so it doesn't get
-            // prematurely garbage-collected.
-            // http://lists.w3.org/Archives/Public/public-audio/2013JanMar/0304.html
-            window.capture_audio = function(event)
-            {
-                if (!recording)
-                    return;
-
-                buffer = buffer.concat(Array.prototype.slice.call(event.inputBuffer.getChannelData(0)));
-
-                // Stop recording after sample_length_milliseconds.
-                if (buffer.length > sample_length_milliseconds * sampleRate / 1000)
-                {
-                    recording = false;
-
-                    correlation_worker.postMessage
-                    (
-                        {
-                            "timeseries": buffer,
-                            "test_frequencies": test_frequencies,
-                            "sample_rate": sampleRate
-                        }
-                    );
-
-                    buffer = [];
-                    setTimeout(function() { recording = true; }, 250);
-                }
-            };
-        }
+        window.test_frequencies = test_frequencies;
 
         function interpret_correlation_result(event)
         {

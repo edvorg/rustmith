@@ -9,7 +9,7 @@ use webgl_rendering_context::{
     WebGLBuffer
 };
 use stdweb::web::html_element::CanvasElement;
-use crate::services::ext::Viewport;
+use crate::services::ext::WebGLRenderingContextExt;
 
 pub struct Renderer {
     pub p_matrix: WebGLUniformLocation,

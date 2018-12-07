@@ -20,7 +20,7 @@ use crate::services::audio::{
     AudioNode,
     MediaStreamSource,
 };
-use crate::services::ext::HiDPI;
+use crate::services::ext::CanvasElementExt;
 use crate::fps::FpsStats;
 use crate::fps::FpsModel;
 
@@ -215,7 +215,7 @@ impl GameModel {
     }
 
     fn update_canvas(canvas: &mut CanvasElement) {
-        let real_to_css_pixels = CanvasElement::device_pixel_ratio();
+        let real_to_css_pixels = window().device_pixel_ratio();
         let display_width  = (canvas.client_width() * real_to_css_pixels).floor() as u32;
         let display_height = (canvas.client_height() * real_to_css_pixels).floor() as u32;
         if canvas.width()  != display_width || canvas.height() != display_height {

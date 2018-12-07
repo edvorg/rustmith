@@ -586,6 +586,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_4f998a6a2e8abfce697424379bb997930abe9f9e": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). value = ($1);
             },
+            "__extjs_4fc5af89d876183ade18fb8c34157e1c6b768f8c": function($0, $1) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){var get_user_media = navigator.getUserMedia ; get_user_media = get_user_media || navigator.webkitGetUserMedia ; get_user_media = get_user_media || navigator.mozGetUserMedia ; get_user_media.call (navigator , {"audio" : true}, ($1), function (){});})());
+            },
             "__extjs_513cc5b95412492d529556ccd01ecd4a671a4df8": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "input") | 0;
             },
@@ -747,6 +750,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_cb392b71162553130760deeb3964fa828c078f74": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLInputElement) | 0;
+            },
+            "__extjs_cb62b5f611862700e8c54de16419771f0c084f4e": function($0, $1) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){use_stream (($1));})());
             },
             "__extjs_d2e4181d99d09b8dcdaf227704c44b7be437abd4": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "resize") | 0;

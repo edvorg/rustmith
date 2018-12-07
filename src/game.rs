@@ -20,6 +20,7 @@ use crate::services::audio::{
     AudioNode,
     MediaStreamSource,
 };
+use stdweb::unstable::TryFrom;
 use crate::services::ext::CanvasElementExt;
 use crate::fps::FpsStats;
 use crate::fps::FpsModel;
@@ -29,8 +30,8 @@ use crate::services::audio::ScriptProcessor;
 use stdweb::Value;
 use crate::services::worker::Worker;
 use crate::services::audio::AudioProcessingEvent;
-use crate::services::audio::Array;
 use std::time::Duration;
+use stdweb::Array;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -72,7 +73,7 @@ pub struct GameModel {
     mic: Option<MediaStreamSource>,
     script_processor: Option<ScriptProcessor>,
     correlation_worker: Option<Worker>,
-    buffer: Array,
+    buffer: Vec<f64>,
     recording: bool,
     recording_job: Option<Box<Task>>,
     fps: FpsStats,
@@ -133,7 +134,7 @@ impl Component<Registry> for GameModel {
             mic: None,
             script_processor: None,
             correlation_worker: None,
-            buffer: Array::new(),
+            buffer: vec!(),
             recording: false,
             recording_job: None,
             fps: FpsStats::new(),
@@ -205,17 +206,16 @@ impl Component<Registry> for GameModel {
                 self.script_processor = Some(script_processor);
                 self.correlation_worker = Some(correlation_worker);
                 self.recording = true;
-                self.buffer = Array::new();
+                self.buffer.clear();
                 false
             },
             GameMessage::AudioProcess(v) => {
                 if !self.recording {
                     return false
                 }
-                let new_buffer = self.buffer.concat(v.input_buffer().get_channel_data_buffer(0));
-                self.buffer = new_buffer;
+                self.buffer.append(&mut v.input_buffer().get_channel_data_buffer(0, env));
                 let sample_rate = env.audio.sample_rate();
-                if self.buffer.length() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
+                if self.buffer.len() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
                     return false
                 }
                 self.recording = false;
@@ -223,13 +223,13 @@ impl Component<Registry> for GameModel {
                     w.post_message(
                         js! {
                             return {
-                                "timeseries": @{&self.buffer.js()},
+                                "timeseries": @{&self.buffer},
                                 "test_frequencies": window.test_frequencies,
                                 "sample_rate": @{sample_rate},
                             };
                         }
                     );
-                    self.buffer = Array::new();
+                    self.buffer.clear();
                     let delay = env.send_back(|_| {
                         GameMessage::ContinueAudioProcess
                     });

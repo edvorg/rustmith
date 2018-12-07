@@ -159,7 +159,6 @@ impl Array {
 
 impl ScriptProcessor {
     pub fn set_onaudioprocess(&self, callback: Callback<AudioProcessingEvent>) {
-        // FIXME possibly memory leak? do we have to drop callback manually?
         let callback = move |v| {
             callback.emit(
                 AudioProcessingEvent {
@@ -169,10 +168,7 @@ impl ScriptProcessor {
         };
         js! {
             var callback = @{callback};
-            var action = function(v) {
-                callback(v);
-            };
-            @{&self.js}.onaudioprocess = action;
+            @{&self.js}.onaudioprocess = callback;
         }
     }
 }

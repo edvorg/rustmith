@@ -505,9 +505,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_03e6d221ec33ab1fba42d4526eaececbd93f38ff": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);var handle = ($0); clearTimeout (handle.timeout_id); handle.callback.drop ();
             },
-            "__extjs_089701fae54b765e89fe940c3821ed6b30edd72e": function($0, $1, $2) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1). test_frequencies = ($2);})());
-            },
             "__extjs_0937444f47666dc0a14b64f18b6147cb787dabb7": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1). destination ;})());
             },
@@ -849,9 +846,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_ed3e289d69d5203c22975d9ecdbd1f8761837408": function($0) {
                 Module.STDWEB_PRIVATE.from_js($0, (function(){return new AudioContext ();})());
-            },
-            "__extjs_ee41f864457c794c278cdcafc28967ffbac29706": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return ($1);})());
             },
             "__extjs_f0c11b4201e3814d830faf55d9ca1ce768f18162": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){($1). start ();})());

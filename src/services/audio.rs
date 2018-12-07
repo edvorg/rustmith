@@ -101,6 +101,21 @@ impl Oscillator {
     }
 }
 
+impl ScriptProcessor {
+    pub fn set_onaudioprocess(&self, callback: Callback<Value>) {
+        let callback = move |v| {
+            callback.emit(v);
+        };
+        js! {
+            var callback = @{callback};
+            var action = function(v) {
+                callback(v);
+            };
+            @{&self.js}.onaudioprocess = action;
+        }
+    }
+}
+
 impl Gain {
     pub fn set_value(&self, value: f32) {
         js! { @{&self.js}.gain.value = @{value}; }

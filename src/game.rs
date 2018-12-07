@@ -25,6 +25,8 @@ use crate::fps::FpsStats;
 use crate::fps::FpsModel;
 use crate::services::audio::MediaStream;
 use crate::services::ext::WindowExt;
+use crate::services::audio::ScriptProcessor;
+use stdweb::Value;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -37,7 +39,8 @@ pub enum GameMessage {
     Resize((f32, f32)),
     Exit,
     ToggleE,
-    ConnectMicrophone(MediaStream)
+    ConnectMicrophone(MediaStream),
+    AudioProcess(Value),
 }
 
 struct GameStats {
@@ -59,6 +62,7 @@ pub struct GameModel {
     destination: Destination,
     playing: bool,
     mic: Option<MediaStreamSource>,
+    script_processor: Option<ScriptProcessor>,
     fps: FpsStats,
     fps_snapshot: FpsStats,
 }
@@ -115,6 +119,7 @@ impl Component<Registry> for GameModel {
             destination,
             playing: false,
             mic: None,
+            script_processor: None,
             fps: FpsStats::new(),
             fps_snapshot: FpsStats::new(),
         }
@@ -168,12 +173,20 @@ impl Component<Registry> for GameModel {
                 let mic = env.audio.create_media_stream_source(mic);
                 window().set_source(&mic);
                 let script_processor = env.audio.create_script_processor(1024, 1, 1);
-                script_processor.connect(&env.audio.destination());
+                script_processor.connect(&self.destination);
                 mic.connect(&script_processor);
-                mic.connect(&env.audio.destination());
+                mic.connect(&self.destination);
                 let sample_rate = env.audio.sample_rate();
                 js! { use_stream(@{&script_processor.js()}, @{sample_rate}); };
+                script_processor.set_onaudioprocess(env.send_back(|v| {
+                    GameMessage::AudioProcess(v)
+                }));
                 self.mic = Some(mic);
+                self.script_processor = Some(script_processor);
+                false
+            },
+            GameMessage::AudioProcess(v) => {
+                js! { window.capture_audio(@{v}); };
                 false
             },
         }

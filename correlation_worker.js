@@ -4,7 +4,7 @@ self.onmessage = function(event)
 	var test_frequencies = event.data.test_frequencies;
 	var sample_rate = event.data.sample_rate;
 	var amplitudes = compute_correlations(timeseries, test_frequencies, sample_rate);
-	self.postMessage({ "timeseries": timeseries, "frequency_amplitudes": amplitudes });
+	self.postMessage({ "frequency_amplitudes": amplitudes });
 };
 
 function compute_correlations(timeseries, test_frequencies, sample_rate)

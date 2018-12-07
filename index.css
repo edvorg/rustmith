@@ -124,15 +124,15 @@ body {
   display: grid;
   grid-column-gap: 0px;
   grid-row-gap: 0px;
-  grid-template-areas: 'game-view    game-view    game-view    game-video'
-                       'game-effects game-effects game-effects game-stats';
+  grid-template-areas: 'game-view    game-view  game-video'
+                       'game-effects game-tuner game-stats';
 }
 
 @media only screen and (max-width: 1024px) {
   .game {
-    grid-template-areas: 'game-view game-view'
-                         'game-effects game-stats'
-                         'game-video game-video';
+    grid-template-areas: 'game-view game-view game-view'
+                         'game-effects game-tuner game-stats'
+                         'game-video game-video game-video';
   }
 }
 
@@ -150,4 +150,8 @@ body {
 
 .game-effects {
   grid-area: game-effects;
+}
+
+.game-tuner {
+  grid-area: game-tuner;
 }

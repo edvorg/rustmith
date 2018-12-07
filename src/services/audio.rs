@@ -103,6 +103,7 @@ impl Oscillator {
 
 impl ScriptProcessor {
     pub fn set_onaudioprocess(&self, callback: Callback<Value>) {
+        // FIXME possibly memory leak? do we have to drop callback manually?
         let callback = move |v| {
             callback.emit(v);
         };

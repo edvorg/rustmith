@@ -353,6 +353,7 @@ impl Renderable<Registry, GameModel> for GameModel {
               </div>
             </div>
             { self.effects_view() }
+            { self.tuner_view() }
           </div>
         }
     }
@@ -406,7 +407,7 @@ impl GameModel {
                 let note_message = format!("Note: {}", n.name);
                 let note_frequency = format!("Frequency: {}hz", n.frequency);
                 html! {
-                    <div>
+                    <div id="game-tuner",>
                       <div>
                         { "Tuner:" }
                       </div>
@@ -420,7 +421,7 @@ impl GameModel {
                 }
             },
             None => html! {
-                <div>
+                <div id="game-tuner",>
                   <div>
                     { "Tuner:" }
                   </div>
@@ -445,7 +446,6 @@ impl GameModel {
               <div>
                 { "Compressor" }
               </div>
-              { self.tuner_view() }
             </div>
         }
     }

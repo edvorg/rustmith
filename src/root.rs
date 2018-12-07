@@ -1,7 +1,7 @@
 use yew::prelude::*;
-use registry::Registry;
-use game;
-use search;
+use crate::registry::Registry;
+use crate::game;
+use crate::search;
 
 #[derive(Debug, PartialEq)]
 pub enum Page {

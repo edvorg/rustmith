@@ -1,8 +1,8 @@
-use registry::Registry;
+use crate::registry::Registry;
 use yew::prelude::*;
-use services::search::SearchService;
-use services::search::SearchResponse;
-use services::search::SearchItem;
+use crate::services::search::SearchService;
+use crate::services::search::SearchResponse;
+use crate::services::search::SearchItem;
 
 pub enum RoutingMessage {
     /// switch to game screen and load song with id song_id

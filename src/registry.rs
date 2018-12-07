@@ -1,8 +1,8 @@
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
-use services::search::StubSearchService;
-use services::render::RenderService;
-use services::audio::AudioService;
+use crate::services::search::StubSearchService;
+use crate::services::render::RenderService;
+use crate::services::audio::AudioService;
 
 pub struct Registry {
     pub console: ConsoleService,

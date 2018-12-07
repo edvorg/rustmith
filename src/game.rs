@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use registry::Registry;
+use crate::registry::Registry;
 use yew::services::Task;
 use stdweb::web::{
     document,
@@ -8,19 +8,19 @@ use stdweb::web::{
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
 use stdweb::web::IHtmlElement;
-use graphics::renderer;
-use graphics::renderer::Renderer;
+use crate::graphics::renderer;
+use crate::graphics::renderer::Renderer;
 use stdweb::web::window;
 use stdweb::web::event::ResizeEvent;
 use stdweb::web::IEventTarget;
-use services::audio::{
+use crate::services::audio::{
     Gain,
     Oscillator,
     Destination,
     AudioNode,
     MediaStreamSource,
 };
-use services::ext::HiDPI;
+use crate::services::ext::HiDPI;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -140,7 +140,7 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ToggleE => {
                 self.playing = !self.playing;
-                if (self.playing) {
+                if self.playing {
                     self.gain.set_value(0.1);
                 } else {
                     self.gain.set_value(0.0);

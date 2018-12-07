@@ -30,10 +30,10 @@ mod graphics {
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
-use registry::Registry;
-use services::search::StubSearchService;
-use services::render::RenderService;
-use services::audio::AudioService;
+use crate::registry::Registry;
+use crate::services::search::StubSearchService;
+use crate::services::render::RenderService;
+use crate::services::audio::AudioService;
 use stdweb::web::INonElementParentNode;
 use stdweb::web::window;
 use stdweb::web::document;

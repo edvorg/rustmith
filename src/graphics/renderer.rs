@@ -1,5 +1,5 @@
-use graphics::algebra;
-use graphics::shaders;
+use crate::graphics::algebra;
+use crate::graphics::shaders;
 use stdweb::web::{
     TypedArray,
 };
@@ -9,7 +9,7 @@ use webgl_rendering_context::{
     WebGLBuffer
 };
 use stdweb::web::html_element::CanvasElement;
-use services::ext::Viewport;
+use crate::services::ext::Viewport;
 
 pub struct Renderer {
     pub p_matrix: WebGLUniformLocation,

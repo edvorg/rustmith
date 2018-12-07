@@ -9,11 +9,12 @@ extern crate stdweb_derive;
 #[macro_use]
 extern crate webgl_rendering_context;
 
-mod registry;
-mod root;
-mod search;
-mod game;
-mod fps;
+pub mod registry;
+pub mod root;
+pub mod search;
+pub mod game;
+pub mod fps;
+pub mod common;
 
 mod services {
     pub mod search;

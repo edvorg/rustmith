@@ -37,9 +37,7 @@ use crate::services::search::StubSearchService;
 use crate::services::render::RenderService;
 use crate::services::audio::AudioService;
 use stdweb::web::INonElementParentNode;
-use stdweb::web::window;
 use stdweb::web::document;
-use crate::services::worker::Worker;
 
 fn main() {
     yew::initialize();

@@ -1,10 +1,6 @@
 use stdweb::Value;
 use yew::prelude::*;
 use stdweb::unstable::TryInto;
-use stdweb::Array;
-use stdweb::unstable::TryFrom;
-use crate::game::GameModel;
-use crate::registry::Registry;
 
 pub trait AudioNode {
     fn js(&self) -> &Value;
@@ -122,7 +118,7 @@ impl AudioProcessingEvent {
 }
 
 impl InputBuffer {
-    pub fn get_channel_data_buffer(&self, channel: u8, env: &mut Env<Registry, GameModel>) -> Vec<f64> {
+    pub fn get_channel_data_buffer(&self, channel: u8) -> Vec<f64> {
         js! (
             return Array.prototype.slice.call(@{&self.js}.getChannelData(@{channel}));
         ).try_into().unwrap()

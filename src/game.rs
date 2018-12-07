@@ -7,7 +7,6 @@ use stdweb::web::{
 };
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
-use stdweb::web::IHtmlElement;
 use crate::graphics::renderer;
 use crate::graphics::renderer::Renderer;
 use stdweb::web::window;
@@ -20,7 +19,6 @@ use crate::services::audio::{
     AudioNode,
     MediaStreamSource,
 };
-use stdweb::unstable::TryFrom;
 use crate::services::ext::CanvasElementExt;
 use crate::fps::FpsStats;
 use crate::fps::FpsModel;
@@ -31,8 +29,6 @@ use stdweb::Value;
 use crate::services::worker::Worker;
 use crate::services::audio::AudioProcessingEvent;
 use std::time::Duration;
-use stdweb::Array;
-use std::ops::Range;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -59,7 +55,7 @@ struct GameStats {
     mastery: u16,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Note {
     frequency: f64,
     name: String,
@@ -88,6 +84,7 @@ pub struct GameModel {
     recording_job: Option<Box<Task>>,
     fps: FpsStats,
     fps_snapshot: FpsStats,
+    note: Option<Note>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -172,6 +169,7 @@ impl Component<Registry> for GameModel {
             recording_job: None,
             fps: FpsStats::new(),
             fps_snapshot: FpsStats::new(),
+            note: None,
         }
     }
 
@@ -238,7 +236,6 @@ impl Component<Registry> for GameModel {
                 script_processor.connect(&self.destination);
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
-                let sample_rate = env.audio.sample_rate();
                 script_processor.set_onaudioprocess(env.send_back(|v| {
                     GameMessage::AudioProcess(v)
                 }));
@@ -253,7 +250,7 @@ impl Component<Registry> for GameModel {
                 if !self.recording {
                     return false
                 }
-                self.buffer.append(&mut v.input_buffer().get_channel_data_buffer(0, env));
+                self.buffer.append(&mut v.input_buffer().get_channel_data_buffer(0));
                 let sample_rate = env.audio.sample_rate();
                 if self.buffer.len() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
                     return false
@@ -284,8 +281,37 @@ impl Component<Registry> for GameModel {
                 false
             },
             GameMessage::InterpretCorrelation(e) => {
-                js! { window.interpret_correlation_result(@{e}, @{&self.test_frequencies}); };
-                false
+                let frequency_amplitudes: Vec<Vec<f64>> = js! (
+                        return @{&e}.data.frequency_amplitudes;
+                    ).try_into().unwrap();
+                // Compute the (squared) magnitudes of the complex amplitudes for each
+                // test frequency.
+                let magnitudes: Vec<f64> = frequency_amplitudes.into_iter().map(|v| {
+                    v[0] * v[0] + v[1] * v[1]
+                }).collect();
+                // Find the maximum in the list of magnitudes.
+                let mut maximum_index = -1i32;
+                let mut maximum_magnitude = 0.0f64;
+                for i in 0..(magnitudes.len() as i32) {
+                    if magnitudes[i as usize] <= maximum_magnitude {
+                        continue;
+                    }
+                    maximum_index = i;
+                    maximum_magnitude = magnitudes[i as usize];
+                }
+                // Compute the average magnitude. We'll only pay attention to frequencies
+                // with magnitudes significantly above average.
+                let average: f64 = magnitudes.iter().sum();
+                let average = average / (magnitudes.len() as f64);
+                let confidence = maximum_magnitude / average;
+                let confidence_threshold = 10.0; // empirical, arbitrary.
+                if confidence > confidence_threshold {
+                    let dominant_frequency = &self.test_frequencies[maximum_index as usize];
+                    self.note = Some(dominant_frequency.clone());
+                    true
+                } else {
+                    false
+                }
             },
             GameMessage::ContinueAudioProcess => {
                 self.recording = true;
@@ -374,6 +400,38 @@ impl GameModel {
         }
     }
 
+    fn tuner_view(&self) -> Html<Registry, GameModel> {
+        match &self.note {
+            Some(n) => {
+                let note_message = format!("Note: {}", n.name);
+                let note_frequency = format!("Frequency: {}hz", n.frequency);
+                html! {
+                    <div>
+                      <div>
+                        { "Tuner:" }
+                      </div>
+                      <div id="note-name",>
+                        { note_message }
+                      </div>
+                      <div id="frequency",>
+                        { note_frequency }
+                      </div>
+                    </div>
+                }
+            },
+            None => html! {
+                <div>
+                  <div>
+                    { "Tuner:" }
+                  </div>
+                  <div>
+                    { "Play a note" }
+                  </div>
+                </div>
+            }
+        }
+    }
+
     fn effects_view(&self) -> Html<Registry, GameModel> {
         html! {
             <div class="game-effects",>
@@ -387,6 +445,7 @@ impl GameModel {
               <div>
                 { "Compressor" }
               </div>
+              { self.tuner_view() }
             </div>
         }
     }

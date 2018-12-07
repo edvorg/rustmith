@@ -5,49 +5,9 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" name="viewport" />
     <link href="index.css" rel="stylesheet" type="text/css">
     <script src="rustmith.js"></script>
-    <script>
-        function interpret_correlation_result(event, test_frequencies)
-        {
-            var timeseries = event.data.timeseries;
-            var frequency_amplitudes = event.data.frequency_amplitudes;
-
-            // Compute the (squared) magnitudes of the complex amplitudes for each
-            // test frequency.
-            var magnitudes = frequency_amplitudes.map(function(z) { return z[0] * z[0] + z[1] * z[1]; });
-
-            // Find the maximum in the list of magnitudes.
-            var maximum_index = -1;
-            var maximum_magnitude = 0;
-            for (var i = 0; i < magnitudes.length; i++)
-            {
-                if (magnitudes[i] <= maximum_magnitude)
-                    continue;
-
-                maximum_index = i;
-                maximum_magnitude = magnitudes[i];
-            }
-
-            // Compute the average magnitude. We'll only pay attention to frequencies
-            // with magnitudes significantly above average.
-            var average = magnitudes.reduce(function(a, b) { return a + b; }, 0) / magnitudes.length;
-            var confidence = maximum_magnitude / average;
-            var confidence_threshold = 10; // empirical, arbitrary.
-            if (confidence > confidence_threshold)
-            {
-                var dominant_frequency = test_frequencies[maximum_index];
-                document.getElementById("note-name").textContent = dominant_frequency.name;
-                document.getElementById("frequency").textContent = dominant_frequency.frequency;
-            }
-        }
-
-        window.interpret_correlation_result = interpret_correlation_result;
-    </script>
-    </head>
-      <body>
-      <div id="app"></div>
-      <div>Tuner</div>
-      <div id="note-name"></div>
-	  <span>frequency (Hz):</span>
-	  <span id="frequency"></span>
-    </body>
+</head>
+<body>
+<div id="app">
+</div>
+</body>
 </html>

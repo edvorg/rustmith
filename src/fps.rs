@@ -32,9 +32,10 @@ impl FpsStats {
     }
 
     pub fn average_fps(&self) -> f64 {
-        match self.time {
-            0.0 => 0.0,
-            t => (self.frames as f64) / t * 1000.0,
+        if self.time == 0.0 {
+            0.0
+        } else {
+            (self.frames as f64) / self.time * 1000.0
         }
     }
 
@@ -70,17 +71,17 @@ impl Component<Registry> for FpsModel {
     type Message = ();
     type Properties = FpsProps;
 
-    fn create(props: <Self as Component<Registry>>::Properties, context: &mut Env<Registry, Self>) -> Self {
+    fn create(props: <Self as Component<Registry>>::Properties, _env: &mut Env<Registry, Self>) -> Self {
         FpsModel {
-            fps: FpsStats::new(),
+            fps: props.fps,
         }
     }
 
-    fn update(&mut self, msg: Self::Message, context: &mut Env<Registry, Self>) -> bool {
+    fn update(&mut self, _msg: Self::Message, _env: &mut Env<Registry, Self>) -> bool {
         false
     }
 
-    fn change(&mut self, props: Self::Properties, _context: &mut Env<Registry, Self>) -> bool {
+    fn change(&mut self, props: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
         self.fps = props.fps;
         true
     }

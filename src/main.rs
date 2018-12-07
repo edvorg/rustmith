@@ -20,6 +20,7 @@ mod services {
     pub mod render;
     pub mod audio;
     pub mod ext;
+    pub mod worker;
 }
 
 mod graphics {
@@ -38,6 +39,7 @@ use crate::services::audio::AudioService;
 use stdweb::web::INonElementParentNode;
 use stdweb::web::window;
 use stdweb::web::document;
+use crate::services::worker::Worker;
 
 fn main() {
     yew::initialize();

@@ -27,6 +27,7 @@ use crate::services::audio::MediaStream;
 use crate::services::ext::WindowExt;
 use crate::services::audio::ScriptProcessor;
 use stdweb::Value;
+use crate::services::worker::Worker;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -43,6 +44,7 @@ pub enum GameMessage {
     ToggleE,
     ConnectMicrophone(MediaStream),
     AudioProcess(Value),
+    InterpretCorrelation(Value),
 }
 
 struct GameStats {
@@ -65,6 +67,7 @@ pub struct GameModel {
     playing: bool,
     mic: Option<MediaStreamSource>,
     script_processor: Option<ScriptProcessor>,
+    correlation_worker: Option<Worker>,
     fps: FpsStats,
     fps_snapshot: FpsStats,
 }
@@ -100,10 +103,10 @@ impl Component<Registry> for GameModel {
         oscillator.connect(&gain);
         gain.connect(&destination);
         oscillator.start();
-        let callback = env.send_back(|source| {
+        let on_mic = env.send_back(|source| {
             return GameMessage::ConnectMicrophone(source);
         });
-        env.audio.get_user_media().call_audio(callback);
+        env.audio.get_user_media().call_audio(on_mic);
         GameModel {
             job: GameModel::animate(env),
             renderer: None,
@@ -122,6 +125,7 @@ impl Component<Registry> for GameModel {
             playing: false,
             mic: None,
             script_processor: None,
+            correlation_worker: None,
             fps: FpsStats::new(),
             fps_snapshot: FpsStats::new(),
         }
@@ -172,6 +176,11 @@ impl Component<Registry> for GameModel {
             },
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
+                let correlation_worker = Worker::new("correlation_worker.js");
+                let on_event = env.send_back(|e| {
+                    return GameMessage::InterpretCorrelation(e)
+                });
+                correlation_worker.add_event_listener("message", on_event);
                 let mic = env.audio.create_media_stream_source(mic);
                 window().set_source(&mic);
                 let script_processor = env.audio.create_script_processor(1024, 1, 1);
@@ -179,16 +188,21 @@ impl Component<Registry> for GameModel {
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
                 let sample_rate = env.audio.sample_rate();
-                js! { use_stream(@{&script_processor.js()}, @{sample_rate}, @{SAMPLE_LENGTH_MILLIS}); };
+                js! { use_stream(@{&script_processor.js()}, @{sample_rate}, @{SAMPLE_LENGTH_MILLIS}, @{&correlation_worker.js()}); };
                 script_processor.set_onaudioprocess(env.send_back(|v| {
                     GameMessage::AudioProcess(v)
                 }));
                 self.mic = Some(mic);
                 self.script_processor = Some(script_processor);
+                self.correlation_worker = Some(correlation_worker);
                 false
             },
             GameMessage::AudioProcess(v) => {
                 js! { window.capture_audio(@{v}); };
+                false
+            },
+            GameMessage::InterpretCorrelation(e) => {
+                js! { window.interpret_correlation_result(@{e}); };
                 false
             },
         }

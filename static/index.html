@@ -20,10 +20,7 @@
             test_frequencies = test_frequencies.concat([ just_below, note, just_above ]);
         }
 
-        var correlation_worker = new Worker("correlation_worker.js");
-        correlation_worker.addEventListener("message", interpret_correlation_result);
-
-        function use_stream(script_processor, sampleRate, sample_length_milliseconds)
+        function use_stream(script_processor, sampleRate, sample_length_milliseconds, correlation_worker)
         {
             var buffer = [];
             var recording = true;
@@ -91,6 +88,8 @@
                 document.getElementById("frequency").textContent = dominant_frequency.frequency;
             }
         }
+
+        window.interpret_correlation_result = interpret_correlation_result;
     </script>
     </head>
       <body>

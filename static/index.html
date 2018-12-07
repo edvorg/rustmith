@@ -23,10 +23,9 @@
         var correlation_worker = new Worker("correlation_worker.js");
         correlation_worker.addEventListener("message", interpret_correlation_result);
 
-        function use_stream(script_processor, sampleRate)
+        function use_stream(script_processor, sampleRate, sample_length_milliseconds)
         {
             var buffer = [];
-            var sample_length_milliseconds = 100;
             var recording = true;
 
             // Need to leak this function into the global namespace so it doesn't get

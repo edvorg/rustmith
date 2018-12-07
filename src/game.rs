@@ -28,6 +28,8 @@ use crate::services::ext::WindowExt;
 use crate::services::audio::ScriptProcessor;
 use stdweb::Value;
 
+static SAMPLE_LENGTH_MILLIS: i32 = 100;
+
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
     /// switch to search screen
@@ -177,7 +179,7 @@ impl Component<Registry> for GameModel {
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
                 let sample_rate = env.audio.sample_rate();
-                js! { use_stream(@{&script_processor.js()}, @{sample_rate}); };
+                js! { use_stream(@{&script_processor.js()}, @{sample_rate}, @{SAMPLE_LENGTH_MILLIS}); };
                 script_processor.set_onaudioprocess(env.send_back(|v| {
                     GameMessage::AudioProcess(v)
                 }));

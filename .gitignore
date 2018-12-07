@@ -7,3 +7,5 @@
 
 # Exclude intellij idea project files
 /.idea/
+/static/correlation_worker.js
+/static/correlation_worker.wasm

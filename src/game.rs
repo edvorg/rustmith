@@ -21,6 +21,7 @@ use crate::services::audio::{
     MediaStreamSource,
 };
 use crate::services::ext::HiDPI;
+use crate::fps::FpsStats;
 use crate::fps::FpsModel;
 
 /// this type of message is used for inter-component communication
@@ -56,8 +57,8 @@ pub struct GameModel {
     destination: Destination,
     playing: bool,
     mic: Option<MediaStreamSource>,
-    fps: FpsModel,
-    fps_snapshot: FpsModel,
+    fps: FpsStats,
+    fps_snapshot: FpsStats,
 }
 
 #[derive(PartialEq, Clone)]
@@ -112,8 +113,8 @@ impl Component<Registry> for GameModel {
             destination,
             playing: false,
             mic: None,
-            fps: FpsModel::new(),
-            fps_snapshot: FpsModel::new(),
+            fps: FpsStats::new(),
+            fps_snapshot: FpsStats::new(),
         }
     }
 
@@ -123,16 +124,16 @@ impl Component<Registry> for GameModel {
                 if self.renderer.is_none() {
                     self.renderer = self.setup_graphics(env);
                 }
+                let delta_millis = time - self.last_time.unwrap_or(time);
                 if let Some(r) = &mut self.renderer {
-                    let delta_millis = time - self.last_time.unwrap_or(time);
                     r.render(delta_millis / 1000.0);
-                    self.fps.log_frame(delta_millis);
                 }
                 self.job = GameModel::animate(env);
                 self.last_time = Some(time);
-                if self.fps.time > 3000.0 {
-                    self.fps_snapshot.reset();
-                    std::mem::swap(&mut self.fps, &mut self.fps_snapshot);
+
+                self.fps.log_frame(delta_millis);
+                if self.fps.time > 2000.0 {
+                    self.fps.drain(&mut self.fps_snapshot);
                     true
                 } else {
                     false
@@ -180,8 +181,7 @@ impl Renderable<Registry, GameModel> for GameModel {
           <div class="game",>
             <div class="game-view",>
               <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
-              <div id="fps",> { format!("avg. fps {}", &self.fps_snapshot.average_fps()) } </div>
-              <div id="delta",> { format!("avg. delta (ms) {}", &self.fps_snapshot.average_frame_time()) } </div>
+              <FpsModel: fps=&self.fps_snapshot, />
               <canvas id="canvas",></canvas>
             </div>
             <div class="game-video",>

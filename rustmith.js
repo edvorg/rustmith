@@ -784,6 +784,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_bcaf900820ca71b299200333490b342af2eb9cd1": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLRenderingContext) | 0;
             },
+            "__extjs_be46082601410ad79cc753a1f76169475e7c6f74": function($0, $1, $2, $3) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){var callback = ($1); var request = ($2). requestAnimationFrame (callback); return {request : request , callback : callback , window : ($3)};})());
+            },
             "__extjs_bf802d36ad5f3b5f78cf07d69394b314c8bb3858": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0). depthFunc (($1));
             },
@@ -807,9 +810,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_d6d59a188b8825cd58baaa4a29c4a918ec7cb003": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof WebGLShader) | 0;
-            },
-            "__extjs_d6eb4ada2799d80c356134484017fc4cbe991d2e": function($0, $1) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){var callback = ($1); var action = function (time){callback (time); callback.drop ();}; return {render_id : requestAnimationFrame (action), callback : callback ,};})());
             },
             "__extjs_da7526dacc33bb6de7714dde287806f568820e31": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);console.log (($0));
@@ -861,9 +861,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_f66c9ee47020d1ad2c7f779ce1587b455eebca8d": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);console.warn (($0));
-            },
-            "__extjs_fd88b05de17ba3dd8ad0e1f7c1ff43ad55a465dc": function($0) {
-                $0 = Module.STDWEB_PRIVATE.to_js($0);var handle = ($0); cancelAnimationFrame (handle.timeout_id); handle.callback.drop ();
             },
             "__extjs_ff5103e6cc179d13b4c7a785bdce2708fd559fc0": function($0) {
                 Module.STDWEB_PRIVATE.tmp = Module.STDWEB_PRIVATE.to_js( $0 );

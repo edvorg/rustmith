@@ -12,10 +12,10 @@ rm -rf target/deploy
 
 cargo clean
 cargo clippy -- -D warnings
-cargo web build --bin correlation_worker --target wasm32-unknown-unknown
+cargo web build --bin correlation_worker --target wasm32-unknown-unknown --release
 cp -f target/wasm32-unknown-unknown/release/correlation_worker.js ./static/
 cp -f target/wasm32-unknown-unknown/release/correlation_worker.wasm ./static/
-cargo web deploy
+cargo web deploy --release
 
 git checkout gh-pages
 mv -f target/deploy/* ./

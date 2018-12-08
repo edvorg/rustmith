@@ -45,10 +45,10 @@ impl Renderable<Registry, RootModel> for RootModel {
     fn view(&self) -> Html<Registry, Self> {
         match &self.page {
             Page::Search => {
-                html! { <search::SearchModel: onsignal=|m| RootMessage::SearchSignal(m), /> }
+                html! { <search::SearchModel: onsignal=RootMessage::SearchSignal, /> }
             }
             Page::Game { song_id, song_url } => {
-                html! { <game::GameModel: onsignal=|m| RootMessage::GameSignal(m), songid=Some(song_id.clone()), songurl=Some(song_url.clone()), /> }
+                html! { <game::GameModel: onsignal=RootMessage::GameSignal, songid=Some(song_id.clone()), songurl=Some(song_url.clone()), /> }
             }
         }
     }

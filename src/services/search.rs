@@ -15,6 +15,7 @@ pub enum SearchResponse {
         items: Vec<SearchItem>,
         continuation_token: Option<String>,
     },
+    #[allow(dead_code)]
     Error,
 }
 
@@ -22,24 +23,17 @@ impl SearchResponse {
     pub fn combine(left: SearchResponse, right: SearchResponse) -> SearchResponse {
         match (left, right) {
             (SearchResponse::Error, _) => SearchResponse::Error,
-            (
-                l @ SearchResponse::Result {
-                    term: _,
-                    items: _,
-                    continuation_token: _,
-                },
-                SearchResponse::Error,
-            ) => l,
+            (l @ SearchResponse::Result { .. }, SearchResponse::Error) => l,
             (
                 SearchResponse::Result {
-                    term: left_term @ _,
-                    items: mut left_items @ _,
-                    continuation_token: _,
+                    term: left_term,
+                    items: mut left_items,
+                    ..
                 },
                 SearchResponse::Result {
-                    term: right_term @ _,
-                    items: mut right_items @ _,
-                    continuation_token: right_token @ _,
+                    term: right_term,
+                    items: mut right_items,
+                    continuation_token: right_token,
                 },
             ) => {
                 if left_term == right_term {
@@ -112,13 +106,13 @@ impl SearchService for StubSearchService {
         let response = if results_at_cursor.len() > batch_size {
             SearchResponse::Result {
                 term: term.into(),
-                items: results_at_cursor.into_iter().map(|i| i.clone()).take(batch_size).collect(),
+                items: results_at_cursor.into_iter().cloned().take(batch_size).collect(),
                 continuation_token: Some((skip + batch_size).to_string()),
             }
         } else {
             SearchResponse::Result {
                 term: term.into(),
-                items: results_at_cursor.into_iter().map(|i| i.clone()).collect(),
+                items: results_at_cursor.into_iter().cloned().collect(),
                 continuation_token: None,
             }
         };

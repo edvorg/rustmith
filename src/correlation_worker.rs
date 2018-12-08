@@ -14,20 +14,19 @@ fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64) -> Vec<Vec<f64>>
     // 2pi * frequency gives the appropriate period to sine.
     // timeseries index / sample_rate gives the appropriate time coordinate.
     let scale_factor = 2.0 * std::f64::consts::PI / sample_rate;
-    let amplitudes: Vec<Vec<f64>> = test_frequencies
+    test_frequencies
         .into_iter()
         .map(|f| {
             let frequency = f.frequency;
             // Represent a complex number as a length-2 array [ real, imaginary ].
             let mut accumulator: Vec<f64> = vec![0.0, 0.0];
-            for t in 0..timeseries.len() {
-                accumulator[0] += timeseries[t] * (scale_factor * frequency * (t as f64)).cos();
-                accumulator[1] += timeseries[t] * (scale_factor * frequency * (t as f64)).cos();
+            for (t, item) in timeseries.iter().enumerate() {
+                accumulator[0] += item * (scale_factor * frequency * (f64::from(t as u32))).cos();
+                accumulator[1] += item * (scale_factor * frequency * (f64::from(t as u32))).cos();
             }
-            return accumulator;
+            accumulator
         })
-        .collect();
-    return amplitudes;
+        .collect()
 }
 
 fn main() {

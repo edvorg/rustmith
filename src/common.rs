@@ -13,7 +13,7 @@ impl Note {
             .flat_map(|i| {
                 let c2 = 65.41f64;
                 let notes = vec!["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-                let frequency = c2 * 2.0f64.powf(i as f64 / 12.0);
+                let frequency = c2 * 2.0f64.powf(f64::from(i as u32) / 12.0);
                 let name = String::from(notes[i % 12]);
                 let above_name = format!("{} (a bit sharp)", &name);
                 let below_name = format!("{} (a bit flat)", &name);

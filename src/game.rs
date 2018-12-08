@@ -23,7 +23,7 @@ use yew_audio::MediaStream;
 use yew_audio::ScriptProcessor;
 use yew_audio::{AudioNode, Destination, Gain, MediaStreamSource, Oscillator};
 
-static SAMPLE_LENGTH_MILLIS: i32 = 100;
+static SAMPLE_LENGTH_MILLIS: u32 = 100;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -53,9 +53,11 @@ pub struct GameModel {
     renderer: Option<renderer::Renderer>,
     last_time: Option<f64>,
     on_signal: Option<Callback<RoutingMessage>>,
+    #[allow(dead_code)]
     song_id: Option<String>,
     song_url: Option<String>,
     stats: GameStats,
+    #[allow(dead_code)]
     oscillator: Oscillator,
     gain: Gain,
     destination: Destination,
@@ -94,7 +96,6 @@ impl Component<Registry> for GameModel {
 
     fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
-        let test_frequencies: Vec<Note> = Note::make_test_frequencies();
         let oscillator = env.audio.create_oscillator();
         let gain = env.audio.create_gain();
         let destination = env.audio.destination();
@@ -103,9 +104,7 @@ impl Component<Registry> for GameModel {
         oscillator.connect(&gain);
         gain.connect(&destination);
         oscillator.start();
-        let on_mic = env.send_back(|source| {
-            return GameMessage::ConnectMicrophone(source);
-        });
+        let on_mic = env.send_back(GameMessage::ConnectMicrophone);
         env.audio.get_user_media().call_audio(on_mic);
         GameModel {
             job: GameModel::animate(env),
@@ -187,7 +186,7 @@ impl Component<Registry> for GameModel {
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
                 let correlation_worker = Worker::new("correlation_worker.js");
-                let on_event = env.send_back(|e| return GameMessage::InterpretCorrelation(e));
+                let on_event = env.send_back(GameMessage::InterpretCorrelation);
                 correlation_worker.add_event_listener("message", on_event);
                 let mic = env.audio.create_media_stream_source(mic);
                 window().set_source(&mic);
@@ -195,7 +194,7 @@ impl Component<Registry> for GameModel {
                 script_processor.connect(&self.destination);
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
-                script_processor.set_onaudioprocess(env.send_back(|v| GameMessage::AudioProcess(v)));
+                script_processor.set_onaudioprocess(env.send_back(GameMessage::AudioProcess));
                 self.mic = Some(mic);
                 self.script_processor = Some(script_processor);
                 self.correlation_worker = Some(correlation_worker);
@@ -209,7 +208,7 @@ impl Component<Registry> for GameModel {
                 }
                 self.buffer.append(&mut v.input_buffer().get_channel_data_buffer(0));
                 let sample_rate = env.audio.sample_rate();
-                if self.buffer.len() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
+                if self.buffer.len() <= (f64::from(SAMPLE_LENGTH_MILLIS) * sample_rate / 1000.0) as usize {
                     return false;
                 }
                 self.recording = false;
@@ -251,7 +250,7 @@ impl Component<Registry> for GameModel {
                 // Compute the average magnitude. We'll only pay attention to frequencies
                 // with magnitudes significantly above average.
                 let average: f64 = magnitudes.iter().sum();
-                let average = average / (magnitudes.len() as f64);
+                let average = average / (f64::from(magnitudes.len() as u32));
                 let confidence = maximum_magnitude / average;
                 let confidence_threshold = 10.0; // empirical, arbitrary.
                 if confidence > confidence_threshold {

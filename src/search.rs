@@ -56,12 +56,12 @@ impl Component<Registry> for SearchModel {
             }
             SearchMessage::Search => {
                 self.search_results = None;
-                let callback = env.send_back(|r| SearchMessage::ResultsReceived(r));
+                let callback = env.send_back(SearchMessage::ResultsReceived);
                 env.search.search(&self.search_str, None, callback);
                 true
             }
             SearchMessage::LoadMore { term, continuation_token } => {
-                let callback = env.send_back(|r| SearchMessage::ResultsReceived(r));
+                let callback = env.send_back(SearchMessage::ResultsReceived);
                 env.search.search(&term, Some(&continuation_token), callback);
                 false
             }
@@ -129,11 +129,7 @@ impl SearchModel {
 
     fn results_view(&self) -> Html<Registry, SearchModel> {
         match &self.search_results {
-            Some(SearchResponse::Result {
-                term: _,
-                items,
-                continuation_token: _,
-            }) if items.is_empty() => {
+            Some(SearchResponse::Result { items, .. }) if items.is_empty() => {
                 html! {
                     <div> { "Song not found" } </div>
                 }
@@ -157,11 +153,7 @@ impl SearchModel {
                   </div>
                 }
             }
-            Some(SearchResponse::Result {
-                term: _,
-                items,
-                continuation_token: _,
-            }) => {
+            Some(SearchResponse::Result { items, .. }) => {
                 html! {
                     <div> { for items.iter().map(|i| self.item_view(i)) } </div>
                 }

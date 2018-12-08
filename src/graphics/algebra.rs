@@ -39,7 +39,7 @@ pub fn rotate_y(m: &mut [f32], angle: f32) {
 
 pub fn get_projection(angle: f32, a: f32, z_min: f32, z_max: f32) -> [f32; 16] {
     let ang = (angle * 0.5).to_radians().tan();
-    return [
+    [
         0.5 / ang,
         0.,
         0.,
@@ -56,5 +56,5 @@ pub fn get_projection(angle: f32, a: f32, z_min: f32, z_max: f32) -> [f32; 16] {
         0.,
         (-2. * z_max * z_min) / (z_max - z_min),
         0.,
-    ];
+    ]
 }

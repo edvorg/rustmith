@@ -10,6 +10,8 @@ fi
 git checkout ${1}
 rm -rf target/deploy
 
+cargo clean
+cargo clippy -- -D warnings
 cargo web build --bin correlation_worker --target wasm32-unknown-unknown
 cp -f target/wasm32-unknown-unknown/release/correlation_worker.js ./static/
 cp -f target/wasm32-unknown-unknown/release/correlation_worker.wasm ./static/

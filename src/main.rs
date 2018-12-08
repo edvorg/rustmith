@@ -19,7 +19,6 @@ mod common;
 
 mod services {
     pub mod search;
-    pub mod render;
     pub mod ext;
     pub mod worker;
 }
@@ -35,7 +34,6 @@ use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
 use crate::registry::Registry;
 use crate::services::search::StubSearchService;
-use crate::services::render::RenderService;
 use yew_audio::AudioService;
 use stdweb::web::INonElementParentNode;
 use stdweb::web::document;
@@ -45,9 +43,8 @@ fn main() {
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
     let search = StubSearchService::new();
-    let render = RenderService::new();
     let audio = AudioService::new();
-    let registry = Registry { console, timeout, search, render, audio };
+    let registry = Registry { console, timeout, search, audio };
     let app = App::<Registry, root::RootModel>::new(registry);
     app.mount(document().get_element_by_id("app").unwrap());
     yew::run_loop();

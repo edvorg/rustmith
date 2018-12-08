@@ -30,6 +30,7 @@ use stdweb::Value;
 use crate::services::worker::Worker;
 use yew_audio::AudioProcessingEvent;
 use std::time::Duration;
+use stdweb::web::RequestAnimationFrameHandle;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -57,7 +58,7 @@ struct GameStats {
 }
 
 pub struct GameModel {
-    job: Box<Task>,
+    job: Box<RequestAnimationFrameHandle>,
     renderer: Option<renderer::Renderer>,
     last_time: Option<f64>,
     on_signal: Option<Callback<RoutingMessage>>,
@@ -330,9 +331,12 @@ impl Renderable<Registry, GameModel> for GameModel {
 }
 
 impl GameModel {
-    fn animate(env: &mut Env<Registry, Self>) -> Box<Task> {
+    fn animate(env: &mut Env<Registry, Self>) -> Box<RequestAnimationFrameHandle> {
         let send_back = env.send_back(|time| GameMessage::Animate { time });
-        Box::new(env.render.request_animation_frame(send_back))
+        let f = move |d| {
+            send_back.emit(d);
+        };
+        Box::new(window().request_animation_frame(f))
     }
 
     fn update_canvas(canvas: &mut CanvasElement) {

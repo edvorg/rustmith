@@ -6,17 +6,10 @@ use yew_audio::MediaStreamSource;
 use yew_audio::AudioNode;
 
 pub trait WindowExt {
-    fn device_pixel_ratio(&self) -> f64;
     fn set_source(&self, source: &MediaStreamSource);
 }
 
 impl WindowExt for Window {
-    fn device_pixel_ratio(&self) -> f64 {
-        js! (
-          return @{self}.devicePixelRatio;
-        ).try_into().unwrap()
-    }
-
     fn set_source(&self, source: &MediaStreamSource) {
         js! {
             @{self}.source = @{&source.js()};

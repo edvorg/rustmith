@@ -57,6 +57,7 @@ impl Component<Registry> for SearchModel {
                 true
             },
             SearchMessage::Search => {
+                self.search_results = None;
                 let callback = env.send_back(|r| { SearchMessage::ResultsReceived(r) });
                 env.search.search(&self.search_str, None, callback);
                 true

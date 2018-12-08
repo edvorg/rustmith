@@ -1,9 +1,9 @@
-use stdweb::web::html_element::CanvasElement;
 use stdweb::unstable::TryInto;
-use webgl_rendering_context::WebGLRenderingContext;
+use stdweb::web::html_element::CanvasElement;
 use stdweb::web::Window;
-use yew_audio::MediaStreamSource;
+use webgl_rendering_context::WebGLRenderingContext;
 use yew_audio::AudioNode;
+use yew_audio::MediaStreamSource;
 
 pub trait WindowExt {
     fn set_source(&self, source: &MediaStreamSource);
@@ -26,13 +26,17 @@ impl CanvasElementExt for CanvasElement {
     fn client_width(&self) -> f64 {
         js! (
             return @{self}.clientWidth;
-        ).try_into().unwrap()
+        )
+        .try_into()
+        .unwrap()
     }
 
     fn client_height(&self) -> f64 {
         js! (
             return @{self}.clientHeight;
-        ).try_into().unwrap()
+        )
+        .try_into()
+        .unwrap()
     }
 }
 

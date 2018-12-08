@@ -1,12 +1,12 @@
 use crate::registry::Registry;
-use yew::prelude::*;
-use crate::services::search::SearchService;
-use crate::services::search::SearchResponse;
 use crate::services::search::SearchItem;
+use crate::services::search::SearchResponse;
+use crate::services::search::SearchService;
+use yew::prelude::*;
 
 pub enum RoutingMessage {
     /// switch to game screen and load song with id song_id
-    StartGame { song_id: String, song_url: String, },
+    StartGame { song_id: String, song_url: String },
 }
 
 #[derive(Debug)]
@@ -32,9 +32,7 @@ pub struct SearchProps {
 
 impl Default for SearchProps {
     fn default() -> Self {
-        SearchProps {
-            onsignal: None,
-        }
+        SearchProps { onsignal: None }
     }
 }
 
@@ -55,18 +53,18 @@ impl Component<Registry> for SearchModel {
             SearchMessage::UpdateSearchString(s) => {
                 self.search_str = s;
                 true
-            },
+            }
             SearchMessage::Search => {
                 self.search_results = None;
-                let callback = env.send_back(|r| { SearchMessage::ResultsReceived(r) });
+                let callback = env.send_back(|r| SearchMessage::ResultsReceived(r));
                 env.search.search(&self.search_str, None, callback);
                 true
-            },
+            }
             SearchMessage::LoadMore { term, continuation_token } => {
-                let callback = env.send_back(|r| { SearchMessage::ResultsReceived(r) });
+                let callback = env.send_back(|r| SearchMessage::ResultsReceived(r));
                 env.search.search(&term, Some(&continuation_token), callback);
                 false
-            },
+            }
             SearchMessage::ResultsReceived(r) => {
                 let old_results = self.search_results.take();
                 let results = match old_results {
@@ -75,16 +73,14 @@ impl Component<Registry> for SearchModel {
                 };
                 self.search_results = Some(results);
                 true
-            },
+            }
             SearchMessage::PlayGame { song_id, song_url } => {
                 if let Some(callback) = &self.onsignal {
                     callback.emit(RoutingMessage::StartGame { song_id, song_url });
                 }
                 false
-            },
-            SearchMessage::UnknownKey => {
-                false
-            },
+            }
+            SearchMessage::UnknownKey => false,
         }
     }
 }
@@ -133,12 +129,20 @@ impl SearchModel {
 
     fn results_view(&self) -> Html<Registry, SearchModel> {
         match &self.search_results {
-            Some(SearchResponse::Result { term: _, items, continuation_token: _ }) if items.is_empty() => {
+            Some(SearchResponse::Result {
+                term: _,
+                items,
+                continuation_token: _,
+            }) if items.is_empty() => {
                 html! {
                     <div> { "Song not found" } </div>
                 }
-            },
-            Some(SearchResponse::Result { term, items, continuation_token: Some(continuation_token) }) => {
+            }
+            Some(SearchResponse::Result {
+                term,
+                items,
+                continuation_token: Some(continuation_token),
+            }) => {
                 let term = term.clone();
                 let continuation_token = continuation_token.clone();
                 html! {
@@ -152,23 +156,26 @@ impl SearchModel {
                     </button>
                   </div>
                 }
-            },
-            Some(SearchResponse::Result { term: _, items, continuation_token: _ }) => {
+            }
+            Some(SearchResponse::Result {
+                term: _,
+                items,
+                continuation_token: _,
+            }) => {
                 html! {
                     <div> { for items.iter().map(|i| self.item_view(i)) } </div>
                 }
-            },
+            }
             Some(SearchResponse::Error) => {
                 html! {
                     <div> { "Search failed" } </div>
                 }
-            },
+            }
             None => {
                 html! {
                     <div> { "Let's rock!" } </div>
                 }
-            },
+            }
         }
     }
-
 }

@@ -1,6 +1,6 @@
+use crate::services::search::StubSearchService;
 use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
-use crate::services::search::StubSearchService;
 use yew_audio::AudioService;
 
 pub struct Registry {

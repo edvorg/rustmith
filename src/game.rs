@@ -1,36 +1,27 @@
-use yew::prelude::*;
-use crate::registry::Registry;
-use yew::services::Task;
-use stdweb::web::{
-    document,
-    IParentNode,
-};
-use stdweb::unstable::TryInto;
-use stdweb::web::html_element::CanvasElement;
+use crate::common::Note;
+use crate::fps::FpsModel;
+use crate::fps::FpsStats;
 use crate::graphics::renderer;
 use crate::graphics::renderer::Renderer;
-use crate::common::Note;
-use stdweb::web::window;
-use stdweb::web::event::ResizeEvent;
-use stdweb::web::IEventTarget;
-use yew_audio::{
-    Gain,
-    Oscillator,
-    Destination,
-    AudioNode,
-    MediaStreamSource,
-};
+use crate::registry::Registry;
 use crate::services::ext::CanvasElementExt;
-use crate::fps::FpsStats;
-use crate::fps::FpsModel;
-use yew_audio::MediaStream;
 use crate::services::ext::WindowExt;
-use yew_audio::ScriptProcessor;
-use stdweb::Value;
 use crate::services::worker::Worker;
-use yew_audio::AudioProcessingEvent;
 use std::time::Duration;
+use stdweb::unstable::TryInto;
+use stdweb::web::event::ResizeEvent;
+use stdweb::web::html_element::CanvasElement;
+use stdweb::web::window;
+use stdweb::web::IEventTarget;
 use stdweb::web::RequestAnimationFrameHandle;
+use stdweb::web::{document, IParentNode};
+use stdweb::Value;
+use yew::prelude::*;
+use yew::services::Task;
+use yew_audio::AudioProcessingEvent;
+use yew_audio::MediaStream;
+use yew_audio::ScriptProcessor;
+use yew_audio::{AudioNode, Destination, Gain, MediaStreamSource, Oscillator};
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;
 
@@ -126,7 +117,7 @@ impl Component<Registry> for GameModel {
             stats: GameStats {
                 notes_missed: 0,
                 notes_hit: 0,
-                mastery: 0
+                mastery: 0,
             },
             oscillator,
             gain,
@@ -135,7 +126,7 @@ impl Component<Registry> for GameModel {
             mic: None,
             script_processor: None,
             correlation_worker: None,
-            buffer: vec!(),
+            buffer: vec![],
             recording: false,
             recording_job: None,
             fps: FpsStats::new(),
@@ -166,7 +157,7 @@ impl Component<Registry> for GameModel {
                 } else {
                     false
                 }
-            },
+            }
             GameMessage::Exit => {
                 if let Some(callback) = &self.on_signal {
                     callback.emit(RoutingMessage::ExitGame);
@@ -174,7 +165,7 @@ impl Component<Registry> for GameModel {
                     env.console.warn("Something is wrong, router not found");
                 }
                 false
-            },
+            }
             GameMessage::Resize((width, height)) => {
                 env.console.log(&format!("Canvas resized ({}, {})", width, height));
                 if let Some(r) = &mut self.renderer {
@@ -183,7 +174,7 @@ impl Component<Registry> for GameModel {
                     env.console.warn("Something is wrong, renderer not found");
                 }
                 false
-            },
+            }
             GameMessage::ToggleE => {
                 self.playing = !self.playing;
                 if self.playing {
@@ -192,13 +183,11 @@ impl Component<Registry> for GameModel {
                     self.gain.set_value(0.0);
                 }
                 false
-            },
+            }
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
                 let correlation_worker = Worker::new("correlation_worker.js");
-                let on_event = env.send_back(|e| {
-                    return GameMessage::InterpretCorrelation(e)
-                });
+                let on_event = env.send_back(|e| return GameMessage::InterpretCorrelation(e));
                 correlation_worker.add_event_listener("message", on_event);
                 let mic = env.audio.create_media_stream_source(mic);
                 window().set_source(&mic);
@@ -206,59 +195,49 @@ impl Component<Registry> for GameModel {
                 script_processor.connect(&self.destination);
                 mic.connect(&script_processor);
                 mic.connect(&self.destination);
-                script_processor.set_onaudioprocess(env.send_back(|v| {
-                    GameMessage::AudioProcess(v)
-                }));
+                script_processor.set_onaudioprocess(env.send_back(|v| GameMessage::AudioProcess(v)));
                 self.mic = Some(mic);
                 self.script_processor = Some(script_processor);
                 self.correlation_worker = Some(correlation_worker);
                 self.recording = true;
                 self.buffer.clear();
                 false
-            },
+            }
             GameMessage::AudioProcess(v) => {
                 if !self.recording {
-                    return false
+                    return false;
                 }
                 self.buffer.append(&mut v.input_buffer().get_channel_data_buffer(0));
                 let sample_rate = env.audio.sample_rate();
                 if self.buffer.len() <= ((SAMPLE_LENGTH_MILLIS as f64) * sample_rate / 1000.0) as usize {
-                    return false
+                    return false;
                 }
                 self.recording = false;
                 if let Some(w) = &self.correlation_worker {
-                    w.post_message(
-                        js! {
-                            return {
-                                "timeseries": @{&self.buffer},
-                                "test_frequencies": window.test_frequencies,
-                                "sample_rate": @{sample_rate},
-                            };
-                        }
-                    );
-                    self.buffer.clear();
-                    let delay = env.send_back(|_| {
-                        GameMessage::ContinueAudioProcess
+                    w.post_message(js! {
+                        return {
+                            "timeseries": @{&self.buffer},
+                            "test_frequencies": window.test_frequencies,
+                            "sample_rate": @{sample_rate},
+                        };
                     });
-                    self.recording_job = Some(
-                        Box::new(
-                            env.timeout.spawn(Duration::from_millis(250), delay)
-                        )
-                    );
+                    self.buffer.clear();
+                    let delay = env.send_back(|_| GameMessage::ContinueAudioProcess);
+                    self.recording_job = Some(Box::new(env.timeout.spawn(Duration::from_millis(250), delay)));
                 } else {
                     env.console.warn("Something is wrong, correlation worker not found");
                 }
                 false
-            },
+            }
             GameMessage::InterpretCorrelation(e) => {
                 let frequency_amplitudes: Vec<Vec<f64>> = js! (
-                        return @{&e}.data.frequency_amplitudes;
-                    ).try_into().unwrap();
+                    return @{&e}.data.frequency_amplitudes;
+                )
+                .try_into()
+                .unwrap();
                 // Compute the (squared) magnitudes of the complex amplitudes for each
                 // test frequency.
-                let magnitudes: Vec<f64> = frequency_amplitudes.into_iter().map(|v| {
-                    v[0] * v[0] + v[1] * v[1]
-                }).collect();
+                let magnitudes: Vec<f64> = frequency_amplitudes.into_iter().map(|v| v[0] * v[0] + v[1] * v[1]).collect();
                 // Find the maximum in the list of magnitudes.
                 let mut maximum_index = -1i32;
                 let mut maximum_magnitude = 0.0f64;
@@ -283,11 +262,11 @@ impl Component<Registry> for GameModel {
                 } else {
                     false
                 }
-            },
+            }
             GameMessage::ContinueAudioProcess => {
                 self.recording = true;
                 false
-            },
+            }
         }
     }
 
@@ -341,9 +320,9 @@ impl GameModel {
 
     fn update_canvas(canvas: &mut CanvasElement) {
         let real_to_css_pixels = window().device_pixel_ratio();
-        let display_width  = (canvas.client_width() * real_to_css_pixels).floor() as u32;
+        let display_width = (canvas.client_width() * real_to_css_pixels).floor() as u32;
         let display_height = (canvas.client_height() * real_to_css_pixels).floor() as u32;
-        if canvas.width()  != display_width || canvas.height() != display_height {
+        if canvas.width() != display_width || canvas.height() != display_height {
             canvas.set_width(display_width);
             canvas.set_height(display_height);
         }
@@ -370,7 +349,7 @@ impl GameModel {
                 });
                 env.console.log("Graphics context inititalized");
                 Some(renderer)
-            },
+            }
             _ => None,
         }
     }
@@ -393,7 +372,7 @@ impl GameModel {
                       </div>
                     </div>
                 }
-            },
+            }
             None => html! {
                 <div id="game-tuner",>
                   <div>
@@ -403,7 +382,7 @@ impl GameModel {
                     { "Play a note" }
                   </div>
                 </div>
-            }
+            },
         }
     }
 

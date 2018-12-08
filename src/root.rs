@@ -1,12 +1,12 @@
-use yew::prelude::*;
-use crate::registry::Registry;
 use crate::game;
+use crate::registry::Registry;
 use crate::search;
+use yew::prelude::*;
 
 #[derive(Debug, PartialEq)]
 pub enum Page {
     Search,
-    Game { song_id: String, song_url: String, },
+    Game { song_id: String, song_url: String },
 }
 
 pub enum RootMessage {
@@ -15,7 +15,7 @@ pub enum RootMessage {
 }
 
 pub struct RootModel {
-    page: Page
+    page: Page,
 }
 
 impl Component<Registry> for RootModel {
@@ -32,11 +32,11 @@ impl Component<Registry> for RootModel {
             RootMessage::GameSignal(game::RoutingMessage::ExitGame) => {
                 self.page = Page::Search;
                 true
-            },
+            }
             RootMessage::SearchSignal(search::RoutingMessage::StartGame { song_id, song_url }) => {
                 self.page = Page::Game { song_id, song_url };
                 true
-            },
+            }
         }
     }
 }
@@ -44,11 +44,12 @@ impl Component<Registry> for RootModel {
 impl Renderable<Registry, RootModel> for RootModel {
     fn view(&self) -> Html<Registry, Self> {
         match &self.page {
-            Page::Search =>
-                html! { <search::SearchModel: onsignal=|m| RootMessage::SearchSignal(m), /> },
+            Page::Search => {
+                html! { <search::SearchModel: onsignal=|m| RootMessage::SearchSignal(m), /> }
+            }
             Page::Game { song_id, song_url } => {
                 html! { <game::GameModel: onsignal=|m| RootMessage::GameSignal(m), songid=Some(song_id.clone()), songurl=Some(song_url.clone()), /> }
-            },
+            }
         }
     }
 }

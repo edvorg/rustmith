@@ -1,15 +1,9 @@
 use crate::graphics::algebra;
 use crate::graphics::shaders;
-use stdweb::web::{
-    TypedArray,
-};
-use webgl_rendering_context::{
-    WebGLRenderingContext as gl,
-    WebGLUniformLocation,
-    WebGLBuffer
-};
-use stdweb::web::html_element::CanvasElement;
 use crate::services::ext::WebGLRenderingContextExt;
+use stdweb::web::html_element::CanvasElement;
+use stdweb::web::TypedArray;
+use webgl_rendering_context::{WebGLBuffer, WebGLRenderingContext as gl, WebGLUniformLocation};
 
 pub struct Renderer {
     pub p_matrix: WebGLUniformLocation,
@@ -76,29 +70,30 @@ impl Renderer {
         let v_matrix = context.get_uniform_location(&shader_program, "Vmatrix").unwrap();
         let m_matrix = context.get_uniform_location(&shader_program, "Mmatrix").unwrap();
 
-        let vertices = TypedArray::<f32>::from(&[
-            -1.,-1.,-1.,  1.,-1.,-1.,  1., 1.,-1., -1., 1.,-1.,
-            -1.,-1., 1.,  1.,-1., 1.,  1., 1., 1., -1., 1., 1.,
-            -1.,-1.,-1., -1., 1.,-1., -1., 1., 1., -1.,-1., 1.,
-            1.,-1.,-1.,  1., 1.,-1.,  1., 1., 1.,  1.,-1., 1.,
-            -1.,-1.,-1., -1.,-1., 1.,  1.,-1., 1.,  1.,-1.,-1.,
-            -1., 1.,-1., -1., 1., 1.,  1., 1., 1.,  1., 1.,-1.,
-        ][..]).buffer();
+        let vertices = TypedArray::<f32>::from(
+            &[
+                -1., -1., -1., 1., -1., -1., 1., 1., -1., -1., 1., -1., -1., -1., 1., 1., -1., 1., 1., 1., 1., -1., 1., 1., -1., -1., -1., -1., 1.,
+                -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1., -1., 1., 1., 1., 1., -1., 1., -1., -1., -1., -1., -1., 1., 1., -1., 1., 1.,
+                -1., -1., -1., 1., -1., -1., 1., 1., 1., 1., 1., 1., 1., -1.,
+            ][..],
+        )
+        .buffer();
 
-        let colors = TypedArray::<f32>::from(&[
-            5.,3.,7., 5.,3.,7., 5.,3.,7., 5.,3.,7.,
-            1.,1.,3., 1.,1.,3., 1.,1.,3., 1.,1.,3.,
-            0.,0.,1., 0.,0.,1., 0.,0.,1., 0.,0.,1.,
-            1.,0.,0., 1.,0.,0., 1.,0.,0., 1.,0.,0.,
-            1.,1.,0., 1.,1.,0., 1.,1.,0., 1.,1.,0.,
-            0.,1.,0., 0.,1.,0., 0.,1.,0., 0.,1.,0.
-        ][..]).buffer();
+        let colors = TypedArray::<f32>::from(
+            &[
+                5., 3., 7., 5., 3., 7., 5., 3., 7., 5., 3., 7., 1., 1., 3., 1., 1., 3., 1., 1., 3., 1., 1., 3., 0., 0., 1., 0., 0., 1., 0., 0., 1.,
+                0., 0., 1., 1., 0., 0., 1., 0., 0., 1., 0., 0., 1., 0., 0., 1., 1., 0., 1., 1., 0., 1., 1., 0., 1., 1., 0., 0., 1., 0., 0., 1., 0.,
+                0., 1., 0., 0., 1., 0.,
+            ][..],
+        )
+        .buffer();
 
-        let indices = TypedArray::<u16>::from(&[
-            0,1,2, 0,2,3, 4,5,6, 4,6,7,
-            8,9,10, 8,10,11, 12,13,14, 12,14,15,
-            16,17,18, 16,18,19, 20,21,22, 20,22,23
-        ][..]).buffer();
+        let indices = TypedArray::<u16>::from(
+            &[
+                0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23,
+            ][..],
+        )
+        .buffer();
 
         // Create and store data into vertex buffer
         let vertex_buffer = context.create_buffer().unwrap();
@@ -117,19 +112,19 @@ impl Renderer {
 
         context.bind_buffer(gl::ARRAY_BUFFER, Some(&vertex_buffer));
         let position = context.get_attrib_location(&shader_program, "position") as u32;
-        context.vertex_attrib_pointer(position, 3, gl::FLOAT, false, 0, 0) ;
+        context.vertex_attrib_pointer(position, 3, gl::FLOAT, false, 0, 0);
 
         // Position
         context.enable_vertex_attrib_array(position);
         context.bind_buffer(gl::ARRAY_BUFFER, Some(&color_buffer));
         let color = context.get_attrib_location(&shader_program, "color") as u32;
-        context.vertex_attrib_pointer(color, 3, gl::FLOAT, false, 0, 0) ;
+        context.vertex_attrib_pointer(color, 3, gl::FLOAT, false, 0, 0);
 
         // Color
         context.enable_vertex_attrib_array(color);
 
-        let mov_matrix = [1.,0.,0.,0., 0.,1.,0.,0., 0.,0.,1.,0., 0.,0.,0.,1.];
-        let mut view_matrix = [1.,0.,0.,0., 0.,1.,0.,0., 0.,0.,1.,0., 0.,0.,0.,1.];
+        let mov_matrix = [1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1.];
+        let mut view_matrix = [1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1.];
 
         // translating z
         view_matrix[14] -= 6.;

@@ -1,8 +1,8 @@
-use yew::prelude::Component;
 use crate::registry::Registry;
+use yew::prelude::Component;
 use yew::prelude::Env;
-use yew::prelude::Renderable;
 use yew::prelude::Html;
+use yew::prelude::Renderable;
 
 #[derive(Clone, PartialEq)]
 pub struct FpsStats {
@@ -12,10 +12,7 @@ pub struct FpsStats {
 
 impl FpsStats {
     pub fn new() -> FpsStats {
-        FpsStats {
-            frames: 0,
-            time: 0.0,
-        }
+        FpsStats { frames: 0, time: 0.0 }
     }
 
     pub fn log_frame(&mut self, frame_time: f64) {
@@ -26,9 +23,8 @@ impl FpsStats {
     pub fn average_frame_time(&self) -> f64 {
         match self.frames {
             0 => 0.0,
-            f => self.time / (f as f64)
+            f => self.time / (f as f64),
         }
-
     }
 
     pub fn average_fps(&self) -> f64 {
@@ -61,9 +57,7 @@ pub struct FpsProps {
 
 impl Default for FpsProps {
     fn default() -> Self {
-        FpsProps {
-            fps: FpsStats::new(),
-        }
+        FpsProps { fps: FpsStats::new() }
     }
 }
 
@@ -72,9 +66,7 @@ impl Component<Registry> for FpsModel {
     type Properties = FpsProps;
 
     fn create(props: <Self as Component<Registry>>::Properties, _env: &mut Env<Registry, Self>) -> Self {
-        FpsModel {
-            fps: props.fps,
-        }
+        FpsModel { fps: props.fps }
     }
 
     fn update(&mut self, _msg: Self::Message, _env: &mut Env<Registry, Self>) -> bool {

@@ -13,7 +13,7 @@ use crate::common::Note;
 use stdweb::web::window;
 use stdweb::web::event::ResizeEvent;
 use stdweb::web::IEventTarget;
-use crate::services::audio::{
+use yew_audio::{
     Gain,
     Oscillator,
     Destination,
@@ -23,12 +23,12 @@ use crate::services::audio::{
 use crate::services::ext::CanvasElementExt;
 use crate::fps::FpsStats;
 use crate::fps::FpsModel;
-use crate::services::audio::MediaStream;
+use yew_audio::MediaStream;
 use crate::services::ext::WindowExt;
-use crate::services::audio::ScriptProcessor;
+use yew_audio::ScriptProcessor;
 use stdweb::Value;
 use crate::services::worker::Worker;
-use crate::services::audio::AudioProcessingEvent;
+use yew_audio::AudioProcessingEvent;
 use std::time::Duration;
 
 static SAMPLE_LENGTH_MILLIS: i32 = 100;

@@ -7,11 +7,12 @@ edition = "2018"
 
 [dependencies]
 yew = "0.4.0"
+yew_audio = { git = "https://github.com/edvorg/yew_audio", rev = "656caef6a9032cc3af6ec61d1834f584f96d75b0" }
 stdweb = "0.4.10"
 stdweb-derive = "0.5.0"
 serde = "1.0.0"
 serde_derive = "1.0.0"
-webgl-rendering-context = { path = "./webgl-rendering-context" }
+webgl-rendering-context = { git = "https://github.com/edvorg/webgl-rendering-context", rev = "778fee3230498fbbf12e683119dc5f1df3421ba4" }
 
 [[bin]]
 name = "rustmith"

@@ -8,6 +8,7 @@ extern crate serde_derive;
 extern crate stdweb_derive;
 #[macro_use]
 extern crate webgl_rendering_context;
+extern crate yew_audio;
 
 pub mod registry;
 pub mod root;
@@ -19,7 +20,6 @@ pub mod common;
 mod services {
     pub mod search;
     pub mod render;
-    pub mod audio;
     pub mod ext;
     pub mod worker;
 }
@@ -36,7 +36,7 @@ use yew::services::timeout::TimeoutService;
 use crate::registry::Registry;
 use crate::services::search::StubSearchService;
 use crate::services::render::RenderService;
-use crate::services::audio::AudioService;
+use yew_audio::AudioService;
 use stdweb::web::INonElementParentNode;
 use stdweb::web::document;
 

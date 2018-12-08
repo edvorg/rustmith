@@ -2,8 +2,8 @@ use stdweb::web::html_element::CanvasElement;
 use stdweb::unstable::TryInto;
 use webgl_rendering_context::WebGLRenderingContext;
 use stdweb::web::Window;
-use crate::services::audio::MediaStreamSource;
-use crate::services::audio::AudioNode;
+use yew_audio::MediaStreamSource;
+use yew_audio::AudioNode;
 
 pub trait WindowExt {
     fn device_pixel_ratio(&self) -> f64;

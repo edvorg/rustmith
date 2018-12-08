@@ -6,6 +6,7 @@
 **/*.rs.bk
 
 # Exclude intellij idea project files
-/.idea/
+.idea/*
+!.idea/runConfigurations
 /static/correlation_worker.js
 /static/correlation_worker.wasm

@@ -10,12 +10,12 @@ extern crate stdweb_derive;
 extern crate webgl_rendering_context;
 extern crate yew_audio;
 
-pub mod registry;
-pub mod root;
-pub mod search;
-pub mod game;
-pub mod fps;
-pub mod common;
+mod registry;
+mod root;
+mod search;
+mod game;
+mod fps;
+mod common;
 
 mod services {
     pub mod search;

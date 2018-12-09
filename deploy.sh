@@ -22,8 +22,10 @@ git checkout gh-pages
 mv -f target/deploy/* ./
 
 RUSTMITH_JS_CHECKSUM=$(md5sum rustmith.js | awk '{print $1}' | xargs echo -n)
+RUSTMITH_WASM_CHECKSUM=$(md5sum rustmith.wasm | awk '{print $1}' | xargs echo -n)
 
 sed -i "s/rustmith.js/rustmith.js?hash=${RUSTMITH_JS_CHECKSUM}/g" index.html
+sed -i "s/rustmith.wasm/rustmith.wasm?hash=${RUSTMITH_WASM_CHECKSUM}/g" rustmith.js
 
 git add *.css
 git add *.html

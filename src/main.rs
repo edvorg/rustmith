@@ -8,7 +8,7 @@ extern crate stdweb_derive;
 extern crate webgl_rendering_context;
 extern crate yew_audio;
 
-mod common;
+pub mod common;
 mod fps;
 mod game;
 mod registry;

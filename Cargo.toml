@@ -11,6 +11,7 @@ yew_audio = { git = "https://github.com/edvorg/yew_audio", rev = "7992302" }
 stdweb = "0.4.10"
 stdweb-derive = "0.5.0"
 serde = "1.0.0"
+serde_json = "1.0.0"
 serde_derive = "1.0.0"
 webgl-rendering-context = { git = "https://github.com/edvorg/webgl-rendering-context", rev = "778fee3" }
 
@@ -21,3 +22,7 @@ path = "./src/main.rs"
 [[bin]]
 name = "correlation_worker"
 path = "./src/correlation_worker.rs"
+
+[[bin]]
+name = "rustmith-backend"
+path = "./src/backend_main.rs"

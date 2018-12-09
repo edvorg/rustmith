@@ -4,6 +4,7 @@ pub struct Note {
     pub name: String,
 }
 
+#[cfg(target_arch = "wasm32")]
 js_serializable!(Note);
 
 impl Note {

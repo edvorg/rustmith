@@ -3,7 +3,7 @@ extern crate stdweb;
 #[macro_use]
 extern crate serde_derive;
 
-mod common;
+pub mod common;
 
 use crate::common::Note;
 use stdweb::unstable::TryInto;

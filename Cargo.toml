@@ -12,7 +12,7 @@ stdweb = "0.4.10"
 stdweb-derive = "0.5.0"
 serde = "1.0.0"
 serde_derive = "1.0.0"
-webgl-rendering-context = { git = "https://github.com/edvorg/webgl-rendering-context", rev = "778fee3230498fbbf12e683119dc5f1df3421ba4" }
+webgl-rendering-context = { git = "https://github.com/edvorg/webgl-rendering-context", rev = "778fee3" }
 
 [[bin]]
 name = "rustmith"

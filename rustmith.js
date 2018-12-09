@@ -589,9 +589,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__extjs_4077c66de83a520233f5f35f5a8f3073f5bac5fc": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){try {return {value : function (){return ($1). insertBefore (($2), ($3));}(), success : true};}catch (error){return {error : error , success : false};}})());
             },
-            "__extjs_42db5546c301bf2eb9a4365c3e802db652e5311d": function($0) {
-                Module.STDWEB_PRIVATE.from_js($0, (function(){var AudioContextContextConstructor = window.AudioContext || window.webkitAudioContext ; return AudioContextContextConstructor ();})());
-            },
             "__extjs_444991aac34a67251ba2a5ded127e57cd67036ff": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){return Array.prototype.slice.call (($1). getChannelData (($2)));})());
             },
@@ -672,6 +669,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__extjs_7fc27933814362cd20aa77bf43593351db5b4cf6": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);($0). bindBuffer (($1), ($2));
+            },
+            "__extjs_800b9bb4876e27582c2122050b6b5cdff99a0e59": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){var AudioContextContextConstructor = window.AudioContext || window.webkitAudioContext ; return new AudioContextContextConstructor ();})());
             },
             "__extjs_80d6d56760c65e49b7be8b6b01c1ea861b046bf0": function($0) {
                 Module.STDWEB_PRIVATE.decrement_refcount( $0 );

@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 yew = "0.4.0"
-yew_audio = { git = "https://github.com/edvorg/yew_audio", rev = "656caef6a9032cc3af6ec61d1834f584f96d75b0" }
+yew_audio = { git = "https://github.com/edvorg/yew_audio", rev = "7992302" }
 stdweb = "0.4.10"
 stdweb-derive = "0.5.0"
 serde = "1.0.0"

@@ -154,7 +154,7 @@ dependencies = [
  "stdweb-derive 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "webgl-rendering-context 0.1.0 (git+https://github.com/edvorg/webgl-rendering-context?rev=778fee3230498fbbf12e683119dc5f1df3421ba4)",
  "yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "yew_audio 0.1.1 (git+https://github.com/edvorg/yew_audio?rev=656caef6a9032cc3af6ec61d1834f584f96d75b0)",
+ "yew_audio 0.1.2 (git+https://github.com/edvorg/yew_audio?rev=7992302)",
 ]
 
 [[package]]
@@ -322,8 +322,8 @@ dependencies = [
 
 [[package]]
 name = "yew_audio"
-version = "0.1.1"
-source = "git+https://github.com/edvorg/yew_audio?rev=656caef6a9032cc3af6ec61d1834f584f96d75b0#656caef6a9032cc3af6ec61d1834f584f96d75b0"
+version = "0.1.2"
+source = "git+https://github.com/edvorg/yew_audio?rev=7992302#799230291f8f5c128aeac48c3e3f6104a4806699"
 dependencies = [
  "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -372,4 +372,4 @@ dependencies = [
 "checksum winapi-i686-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 "checksum yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "078bc9860a9c72d3ff40b19fc7ed0a21c69234c667cd859091a72e513143cd9e"
-"checksum yew_audio 0.1.1 (git+https://github.com/edvorg/yew_audio?rev=656caef6a9032cc3af6ec61d1834f584f96d75b0)" = "<none>"
+"checksum yew_audio 0.1.2 (git+https://github.com/edvorg/yew_audio?rev=7992302)" = "<none>"

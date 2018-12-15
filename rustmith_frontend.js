@@ -19,13 +19,13 @@ if( typeof Rust === "undefined" ) {
         if( typeof window === "undefined" && typeof process === "object" ) {
             var fs = require( "fs" );
             var path = require( "path" );
-            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=570bdb6cbef6e9523da7a75ddc080a63" );
+            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=035bbebd2bce9987c1dd75a7c1cbd063" );
             var buffer = fs.readFileSync( wasm_path );
             var mod = new WebAssembly.Module( buffer );
             var wasm_instance = new WebAssembly.Instance( mod, instance.imports );
             return instance.initialize( wasm_instance );
         } else {
-            var file = fetch( "rustmith_frontend.wasm?hash=570bdb6cbef6e9523da7a75ddc080a63", {credentials: "same-origin"} );
+            var file = fetch( "rustmith_frontend.wasm?hash=035bbebd2bce9987c1dd75a7c1cbd063", {credentials: "same-origin"} );
 
             var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
                 ? WebAssembly.instantiateStreaming( file, instance.imports )
@@ -617,6 +617,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_4a595161275df38b377ac07a12cf6adfc68a83cb": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).clientWidth;})());
             },
+            "__cargo_web_snippet_4b288ec9d38a0ef0649bcadff4e2cce4f0a7e50c": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){navigator.getUserMedia=(navigator.getUserMedia||navigator.webkitGetUserMedia||navigator.mozGetUserMedia||navigator.msGetUserMedia);})());
+            },
             "__cargo_web_snippet_4c5ba11782e642d526f3f9503cbc676ec951cb17": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).viewportWidth=($2);})());
             },
@@ -634,6 +637,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_5984245de8b6ef88f693ba2383ebf3c2f9718c6c": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLCanvasElement) | 0;
+            },
+            "__cargo_web_snippet_5c9aab4e8a8ee6b3bb3c2a1beecb7ba4ce86bc6e": function($0, $1, $2) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).call(null,($2));})());
             },
             "__cargo_web_snippet_5d4d89d18e7c3148f495c253b37453ea33918b85": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).createGain();})());
@@ -685,9 +691,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_7b0825ae89bed906bbdd29f8ee2ceb22c4fef516": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).width=($1);
-            },
-            "__cargo_web_snippet_7b89a121cf9aff39f83b5dce10d84fa0451447e8": function($0, $1, $2) {
-                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).call(navigator,{"audio":true},($2),function(){});})());
             },
             "__cargo_web_snippet_7c8dfab835dc8a552cd9d67f27d26624590e052c": function($0) {
                 var r = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (r instanceof DOMException) && (r.name === "SyntaxError");
@@ -794,9 +797,6 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_b4b6ba2a3fbf1e674918b44b1225c4b8eb934b6c": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).connect(($2));})());
             },
-            "__cargo_web_snippet_ba67f08e14e7527c809b8107cf02aa53bf6ba428": function($0) {
-                Module.STDWEB_PRIVATE.from_js($0, (function(){var get_user_media=navigator.getUserMedia;get_user_media=get_user_media||navigator.webkitGetUserMedia;get_user_media=get_user_media||navigator.mozGetUserMedia;return get_user_media})());
-            },
             "__cargo_web_snippet_bb618d13cbb219642bd219af99ee1519e5658d77": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).classList;})());
             },
@@ -823,6 +823,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_cfbd6c1e90445edf5bc1783e2c2438530224ca63": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){var callback=($1);($2).onaudioprocess=callback;})());
+            },
+            "__cargo_web_snippet_d2dadd51dff3c357f298706e2f7dbcd8f821b351": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){return(function(callback){if(navigator.mediaDevices){navigator.mediaDevices.getUserMedia({audio:true}).then(callback,function(){});}else{navigator.getUserMedia({audio:true},callback,function(){});}});})());
             },
             "__cargo_web_snippet_d2e4181d99d09b8dcdaf227704c44b7be437abd4": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "resize") | 0;

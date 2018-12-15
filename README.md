@@ -13,6 +13,6 @@ rustup target add wasm32-unknown-unknown
 cargo install --force cargo-web
 
 # during development
-cargo web start --auto-reload
+cargo web start -p rustmith_frontend --auto-reload
 # open localhost:8000 in browser
 ```

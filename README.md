@@ -1,5 +1,5 @@
 # rustmith
-Rocksmith clone for WEB platform
+Rocksmith clone for Web platform
 
 ## Setup
 

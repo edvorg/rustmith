@@ -2,7 +2,7 @@
 name = "rustmith_common"
 version = "0.1.0"
 authors = ["Eduard Knyshov <edvorg@gmail.com>"]
-description = "Rocksmith clone for WEB platform"
+description = "Rocksmith clone for Web platform (Common)"
 edition = "2018"
 
 [dependencies]

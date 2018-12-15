@@ -6,6 +6,7 @@ use crate::registry::Registry;
 use crate::services::ext::CanvasElementExt;
 use crate::services::ext::WindowExt;
 use crate::services::worker::Worker;
+use rustmith_common::Note;
 use std::time::Duration;
 use stdweb::unstable::TryInto;
 use stdweb::web::event::ResizeEvent;
@@ -21,7 +22,6 @@ use yew_audio::AudioProcessingEvent;
 use yew_audio::MediaStream;
 use yew_audio::ScriptProcessor;
 use yew_audio::{AudioNode, Destination, Gain, MediaStreamSource, Oscillator};
-use rustmith_common::Note;
 
 static SAMPLE_LENGTH_MILLIS: u32 = 100;
 

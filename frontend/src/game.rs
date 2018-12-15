@@ -22,6 +22,7 @@ use yew_audio::AudioProcessingEvent;
 use yew_audio::MediaStream;
 use yew_audio::ScriptProcessor;
 use yew_audio::{AudioNode, Destination, Gain, MediaStreamSource, Oscillator};
+use stdweb::web::IElement;
 
 static SAMPLE_LENGTH_MILLIS: u32 = 100;
 
@@ -185,7 +186,8 @@ impl Component<Registry> for GameModel {
             }
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
-                let correlation_worker = Worker::new("rustmith_correlation_worker.js");
+                let worker_path = document().body().unwrap().get_attribute("data-correlation-worker").unwrap();
+                let correlation_worker = Worker::new(&worker_path);
                 let on_event = env.send_back(GameMessage::InterpretCorrelation);
                 correlation_worker.add_event_listener("message", on_event);
                 let mic = env.audio.create_media_stream_source(mic);

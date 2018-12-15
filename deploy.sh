@@ -8,7 +8,6 @@ if [ -z "${1}" ] ; then
 fi
 
 git checkout ${1}
-rm -rf target/deploy
 
 cargo clean
 cargo clippy -- -D warnings
@@ -18,6 +17,10 @@ cp -f target/wasm32-unknown-unknown/release/rustmith_correlation_worker.wasm ./f
 cargo web deploy -p rustmith_frontend --target wasm32-unknown-unknown --release
 
 git checkout gh-pages
+rm *.css
+rm *.html
+rm *.js
+rm *.wasm
 mv -f target/deploy/* ./
 
 CSS_CHECKSUM=$(md5sum index.css | awk '{print $1}' | xargs echo -n)
@@ -27,6 +30,7 @@ WORKER_CHECKSUM=$(md5sum rustmith_correlation_worker.wasm | awk '{print $1}' | x
 sed -i "s/index.css/index.css?hash=${CSS_CHECKSUM}/g" index.html
 sed -i "s/rustmith_frontend.js/rustmith_frontend.js?hash=${FRONTEND_CHECKSUM}/g" index.html
 sed -i "s/rustmith_frontend.wasm/rustmith_frontend.wasm?hash=${FRONTEND_CHECKSUM}/g" rustmith_frontend.js
+sed -i "s/rustmith_correlation_worker.js/rustmith_correlation_worker.js?hash=${WORKER_CHECKSUM}/g" index.html
 sed -i "s/rustmith_correlation_worker.wasm/rustmith_correlation_worker.wasm?hash=${WORKER_CHECKSUM}/g" rustmith_correlation_worker.js
 
 git add *.css

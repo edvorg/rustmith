@@ -22,13 +22,15 @@ cargo web deploy -p rustmith_frontend --target wasm32-unknown-unknown --release
 git checkout gh-pages
 mv -f target/deploy/* ./
 
-RUSTMITH_CSS_CHECKSUM=$(md5sum index.css | awk '{print $1}' | xargs echo -n)
-RUSTMITH_JS_CHECKSUM=$(md5sum rustmith.js | awk '{print $1}' | xargs echo -n)
-RUSTMITH_WASM_CHECKSUM=$(md5sum rustmith.wasm | awk '{print $1}' | xargs echo -n)
+CSS_CHECKSUM=$(md5sum index.css | awk '{print $1}' | xargs echo -n)
+JS_CHECKSUM=$(md5sum rustmith_frontend.js | awk '{print $1}' | xargs echo -n)
+WASM_CHECKSUM=$(md5sum rustmith_frontend.wasm | awk '{print $1}' | xargs echo -n)
+CORRELATION_WORKER_WASM_CHECKSUM=$(md5sum rustmith_correlation_worker.wasm | awk '{print $1}' | xargs echo -n)
 
-sed -i "s/rustmith_frontend.js/rustmith_frontend.js?hash=${RUSTMITH_JS_CHECKSUM}/g" index.html
-sed -i "s/index.css/index.css?hash=${RUSTMITH_CSS_CHECKSUM}/g" index.html
-sed -i "s/rustmith_frontend.wasm/rustmith_frontend.wasm?hash=${RUSTMITH_WASM_CHECKSUM}/g" rustmith_frontend.js
+sed -i "s/rustmith_frontend.js/rustmith_frontend.js?hash=${JS_CHECKSUM}/g" index.html
+sed -i "s/index.css/index.css?hash=${CSS_CHECKSUM}/g" index.html
+sed -i "s/rustmith_frontend.wasm/rustmith_frontend.wasm?hash=${WASM_CHECKSUM}/g" rustmith_frontend.js
+sed -i "s/rustmith_correlation_worker.wasm/rustmith_correlation_worker.wasm?hash=${CORRELATION_WORKER_WASM_CHECKSUM}/g" rustmith_correlation_worker.js
 
 git add *.css
 git add *.html

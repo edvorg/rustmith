@@ -5,9 +5,11 @@ extern crate stdweb;
 
 mod fps;
 mod game;
+mod guitar_effects;
 mod registry;
 mod root;
 mod search;
+mod tuner;
 
 mod services {
     pub mod ext;

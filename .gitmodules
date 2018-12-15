@@ -1,0 +1,3 @@
+[submodule "yew_audio"]
+	path = yew_audio
+	url = git@github.com:edvorg/yew_audio.git

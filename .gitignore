@@ -8,5 +8,5 @@
 # Exclude intellij idea project files
 .idea/*
 !.idea/runConfigurations
-/static/correlation_worker.js
-/static/correlation_worker.wasm
+/frontend/static/rustmith_correlation_worker.js
+/frontend/static/rustmith_correlation_worker.wasm

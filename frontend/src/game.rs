@@ -1,4 +1,3 @@
-use crate::common::Note;
 use crate::fps::FpsModel;
 use crate::fps::FpsStats;
 use crate::graphics::renderer;
@@ -22,6 +21,7 @@ use yew_audio::AudioProcessingEvent;
 use yew_audio::MediaStream;
 use yew_audio::ScriptProcessor;
 use yew_audio::{AudioNode, Destination, Gain, MediaStreamSource, Oscillator};
+use rustmith_common::Note;
 
 static SAMPLE_LENGTH_MILLIS: u32 = 100;
 
@@ -185,7 +185,7 @@ impl Component<Registry> for GameModel {
             }
             GameMessage::ConnectMicrophone(mic) => {
                 env.console.log("Established mic connection");
-                let correlation_worker = Worker::new("correlation_worker.js");
+                let correlation_worker = Worker::new("rustmith_correlation_worker.js");
                 let on_event = env.send_back(GameMessage::InterpretCorrelation);
                 correlation_worker.add_event_listener("message", on_event);
                 let mic = env.audio.create_media_stream_source(mic);

@@ -1,0 +1,13 @@
+[package]
+name = "rustmith_common"
+version = "0.1.0"
+authors = ["Eduard Knyshov <edvorg@gmail.com>"]
+description = "Rocksmith clone for WEB platform"
+edition = "2018"
+
+[dependencies]
+stdweb = "0.4.10"
+stdweb-derive = "0.5.0"
+serde = "1.0.0"
+serde_json = "1.0.0"
+serde_derive = "1.0.0"

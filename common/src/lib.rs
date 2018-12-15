@@ -1,3 +1,9 @@
+#[macro_use]
+extern crate serde_derive;
+#[cfg(target_arch = "wasm32")]
+#[macro_use]
+extern crate stdweb;
+
 #[derive(Serialize, Clone)]
 pub struct Note {
     pub frequency: f64,

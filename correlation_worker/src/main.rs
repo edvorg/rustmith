@@ -1,13 +1,9 @@
 #[macro_use]
 extern crate stdweb;
-#[macro_use]
-extern crate serde_derive;
 
-pub mod common;
-
-use crate::common::Note;
 use stdweb::unstable::TryInto;
 use stdweb::Value;
+use rustmith_common::Note;
 
 fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64) -> Vec<Vec<f64>> {
     let test_frequencies: Vec<Note> = Note::make_test_frequencies();

@@ -1,14 +1,8 @@
 #[macro_use]
-extern crate stdweb;
-#[macro_use]
 extern crate yew;
 #[macro_use]
-extern crate serde_derive;
-extern crate stdweb_derive;
-extern crate webgl_rendering_context;
-extern crate yew_audio;
+extern crate stdweb;
 
-pub mod common;
 mod fps;
 mod game;
 mod registry;
@@ -42,18 +36,18 @@ fn test_fail() {
 }
 
 fn main() {
-    yew::initialize();
-    let console = ConsoleService::new();
-    let timeout = TimeoutService::new();
-    let search = StubSearchService::new();
-    let audio = AudioService::new();
-    let registry = Registry {
-        console,
-        timeout,
-        search,
-        audio,
-    };
-    let app = App::<Registry, root::RootModel>::new(registry);
-    app.mount(document().get_element_by_id("app").unwrap());
-    yew::run_loop();
+   yew::initialize();
+   let console = ConsoleService::new();
+   let timeout = TimeoutService::new();
+   let search = StubSearchService::new();
+   let audio = AudioService::default();
+   let registry = Registry {
+       console,
+       timeout,
+       search,
+       audio,
+   };
+   let app = App::<Registry, root::RootModel>::new(registry);
+   app.mount(document().get_element_by_id("app").unwrap());
+   yew::run_loop();
 }

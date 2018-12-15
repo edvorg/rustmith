@@ -1,11 +1,4 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-extern crate serde_json;
-
-pub mod common;
-
-use crate::common::Note;
+use rustmith_common::Note;
 
 fn main() {
     let freqs = Note::make_test_frequencies();

@@ -1,9 +1,24 @@
+use crate::fps::FpsModel;
+use crate::fps::FpsStats;
 use crate::graphics::algebra;
 use crate::graphics::shaders;
+use crate::registry::Registry;
+use crate::services::ext::CanvasElementExt;
 use crate::services::ext::WebGLRenderingContextExt;
+use stdweb::unstable::TryInto;
+use stdweb::web::document;
+use stdweb::web::event::ResizeEvent;
 use stdweb::web::html_element::CanvasElement;
+use stdweb::web::window;
+use stdweb::web::IEventTarget;
+use stdweb::web::IParentNode;
+use stdweb::web::RequestAnimationFrameHandle;
 use stdweb::web::TypedArray;
 use webgl_rendering_context::{WebGLBuffer, WebGLRenderingContext as gl, WebGLUniformLocation};
+use yew::prelude::Component;
+use yew::prelude::Env;
+use yew::prelude::Html;
+use yew::prelude::Renderable;
 
 pub struct Renderer {
     pub p_matrix: WebGLUniformLocation,
@@ -15,6 +30,83 @@ pub struct Renderer {
     pub context: gl,
     pub width: f32,
     pub height: f32,
+}
+
+pub struct RendererModel {
+    renderer: Option<Renderer>,
+    job: Box<RequestAnimationFrameHandle>,
+    last_time: Option<f64>,
+    fps: FpsStats,
+    fps_snapshot: FpsStats,
+}
+
+pub enum RendererMessage {
+    Animate { time: f64 },
+    Resize((f32, f32)),
+}
+
+#[derive(Clone, PartialEq)]
+pub struct RendererProps {}
+
+impl Default for RendererProps {
+    fn default() -> Self {
+        RendererProps {}
+    }
+}
+
+impl Component<Registry> for RendererModel {
+    type Message = RendererMessage;
+    type Properties = RendererProps;
+
+    fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
+        RendererModel {
+            renderer: None,
+            last_time: None,
+            job: RendererModel::animate(env),
+            fps: FpsStats::new(),
+            fps_snapshot: FpsStats::new(),
+        }
+    }
+
+    fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
+        match msg {
+            RendererMessage::Animate { time } => {
+                if self.renderer.is_none() {
+                    self.renderer = self.setup_graphics(env);
+                }
+                let delta_millis = time - self.last_time.unwrap_or(time);
+                if let Some(r) = &mut self.renderer {
+                    r.render(delta_millis / 1000.0);
+                } else {
+                    env.console.warn("Something is wrong, renderer not found");
+                }
+                self.job = RendererModel::animate(env);
+                self.last_time = Some(time);
+
+                self.fps.log_frame(delta_millis);
+                if self.fps.time > 2000.0 {
+                    self.fps.drain(&mut self.fps_snapshot);
+                    true
+                } else {
+                    false
+                }
+            }
+
+            RendererMessage::Resize((width, height)) => {
+                env.console.log(&format!("Canvas resized ({}, {})", width, height));
+                if let Some(r) = &mut self.renderer {
+                    r.set_viewport(width, height);
+                } else {
+                    env.console.warn("Something is wrong, renderer not found");
+                }
+                false
+            }
+        }
+    }
+
+    fn change(&mut self, _props: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
+        false
+    }
 }
 
 impl Renderer {
@@ -44,7 +136,7 @@ impl Renderer {
         self.height = height;
     }
 
-    pub fn make_cotext(canvas: &CanvasElement) -> gl {
+    pub fn make_context(canvas: &CanvasElement) -> gl {
         canvas.get_context().unwrap()
     }
 
@@ -139,6 +231,63 @@ impl Renderer {
             context,
             width,
             height,
+        }
+    }
+}
+
+impl Renderable<Registry, RendererModel> for RendererModel {
+    fn view(&self) -> Html<Registry, RendererModel> {
+        html! {
+          <>
+            <FpsModel: fps=&self.fps_snapshot, />
+            <canvas id="canvas",></canvas>
+          </>
+        }
+    }
+}
+
+impl RendererModel {
+    fn animate(env: &mut Env<Registry, Self>) -> Box<RequestAnimationFrameHandle> {
+        let send_back = env.send_back(|time| RendererMessage::Animate { time });
+        let f = move |d| {
+            send_back.emit(d);
+        };
+        Box::new(window().request_animation_frame(f))
+    }
+
+    fn update_canvas(canvas: &mut CanvasElement) {
+        let real_to_css_pixels = window().device_pixel_ratio();
+        let display_width = (canvas.client_width() * real_to_css_pixels).floor() as u32;
+        let display_height = (canvas.client_height() * real_to_css_pixels).floor() as u32;
+        if canvas.width() != display_width || canvas.height() != display_height {
+            canvas.set_width(display_width);
+            canvas.set_height(display_height);
+        }
+    }
+
+    fn get_canvas_size(canvas: &CanvasElement) -> (f32, f32) {
+        (canvas.width() as f32, canvas.height() as f32)
+    }
+
+    fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {
+        env.console.log("Setting up graphics context");
+        match document().query_selector("#canvas") {
+            Ok(Some(canvas)) => {
+                let mut canvas: CanvasElement = canvas.try_into().unwrap();
+                RendererModel::update_canvas(&mut canvas);
+                let context = Renderer::make_context(&canvas);
+                let size = RendererModel::get_canvas_size(&canvas);
+                let renderer = Renderer::new(context, size);
+                let callback = env.send_back(|m| m);
+                window().add_event_listener(move |_: ResizeEvent| {
+                    RendererModel::update_canvas(&mut canvas);
+                    let size = RendererModel::get_canvas_size(&canvas);
+                    callback.emit(RendererMessage::Resize(size));
+                });
+                env.console.log("Graphics context inititalized");
+                Some(renderer)
+            }
+            _ => None,
         }
     }
 }

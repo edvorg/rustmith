@@ -23,14 +23,13 @@ git checkout gh-pages
 mv -f target/deploy/* ./
 
 CSS_CHECKSUM=$(md5sum index.css | awk '{print $1}' | xargs echo -n)
-JS_CHECKSUM=$(md5sum rustmith_frontend.js | awk '{print $1}' | xargs echo -n)
-WASM_CHECKSUM=$(md5sum rustmith_frontend.wasm | awk '{print $1}' | xargs echo -n)
-CORRELATION_WORKER_WASM_CHECKSUM=$(md5sum rustmith_correlation_worker.wasm | awk '{print $1}' | xargs echo -n)
+FRONTEND_CHECKSUM=$(md5sum rustmith_frontend.wasm | awk '{print $1}' | xargs echo -n)
+WORKER_CHECKSUM=$(md5sum rustmith_correlation_worker.wasm | awk '{print $1}' | xargs echo -n)
 
-sed -i "s/rustmith_frontend.js/rustmith_frontend.js?hash=${JS_CHECKSUM}/g" index.html
 sed -i "s/index.css/index.css?hash=${CSS_CHECKSUM}/g" index.html
-sed -i "s/rustmith_frontend.wasm/rustmith_frontend.wasm?hash=${WASM_CHECKSUM}/g" rustmith_frontend.js
-sed -i "s/rustmith_correlation_worker.wasm/rustmith_correlation_worker.wasm?hash=${CORRELATION_WORKER_WASM_CHECKSUM}/g" rustmith_correlation_worker.js
+sed -i "s/rustmith_frontend.js/rustmith_frontend.js?hash=${FRONTEND_CHECKSUM}/g" index.html
+sed -i "s/rustmith_frontend.wasm/rustmith_frontend.wasm?hash=${FRONTEND_CHECKSUM}/g" rustmith_frontend.js
+sed -i "s/rustmith_correlation_worker.wasm/rustmith_correlation_worker.wasm?hash=${WORKER_CHECKSUM}/g" rustmith_correlation_worker.js
 
 git add *.css
 git add *.html

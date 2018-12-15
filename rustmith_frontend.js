@@ -19,13 +19,13 @@ if( typeof Rust === "undefined" ) {
         if( typeof window === "undefined" && typeof process === "object" ) {
             var fs = require( "fs" );
             var path = require( "path" );
-            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=f5505e5e73e9bd6b748a42623aa2d8c1" );
+            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=95f90a211e62baea7855735aa36830a1" );
             var buffer = fs.readFileSync( wasm_path );
             var mod = new WebAssembly.Module( buffer );
             var wasm_instance = new WebAssembly.Instance( mod, instance.imports );
             return instance.initialize( wasm_instance );
         } else {
-            var file = fetch( "rustmith_frontend.wasm?hash=f5505e5e73e9bd6b748a42623aa2d8c1", {credentials: "same-origin"} );
+            var file = fetch( "rustmith_frontend.wasm?hash=95f90a211e62baea7855735aa36830a1", {credentials: "same-origin"} );
 
             var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
                 ? WebAssembly.instantiateStreaming( file, instance.imports )
@@ -907,6 +907,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_f65b819afa80200c47370f8ea5f58b9723acc40e": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).inputBuffer;})());
+            },
+            "__cargo_web_snippet_f706e60b0e236338195aefa9b7488fb1862642aa": function($0, $1, $2) {
+                $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){return Module.STDWEB_PRIVATE.get_raw_value(($1))===Module.STDWEB_PRIVATE.get_raw_value(($2));})());
             },
             "__cargo_web_snippet_f750c7bda400081b4d7209f43f9d59214d39f6ea": function($0, $1, $2) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);var listener=($0);($1).removeEventListener(($2),listener);listener.drop();

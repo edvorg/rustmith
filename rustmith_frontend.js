@@ -19,13 +19,13 @@ if( typeof Rust === "undefined" ) {
         if( typeof window === "undefined" && typeof process === "object" ) {
             var fs = require( "fs" );
             var path = require( "path" );
-            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=95f90a211e62baea7855735aa36830a1" );
+            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=18dff46a6b71da19869152cd121b3f66" );
             var buffer = fs.readFileSync( wasm_path );
             var mod = new WebAssembly.Module( buffer );
             var wasm_instance = new WebAssembly.Instance( mod, instance.imports );
             return instance.initialize( wasm_instance );
         } else {
-            var file = fetch( "rustmith_frontend.wasm?hash=95f90a211e62baea7855735aa36830a1", {credentials: "same-origin"} );
+            var file = fetch( "rustmith_frontend.wasm?hash=18dff46a6b71da19869152cd121b3f66", {credentials: "same-origin"} );
 
             var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
                 ? WebAssembly.instantiateStreaming( file, instance.imports )
@@ -613,6 +613,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_46518012593da937dd5f35c2fc1c5e1dcade260b": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){try{return{value:function(){return($1).insertBefore(($2),($3));}(),success:true};}catch(error){return{error:error,success:false};}})());
+            },
+            "__cargo_web_snippet_47718422e50df200495a140ddc7e7c5ac9e9d085": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){console.log("unsupported action");})());
             },
             "__cargo_web_snippet_4a595161275df38b377ac07a12cf6adfc68a83cb": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).clientWidth;})());

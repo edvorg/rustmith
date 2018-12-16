@@ -31,7 +31,12 @@ impl TrackService for StubTrackService {
             Action::fret_action(8000, 8200, 1, 4),
             Action::fret_action(8400, 8600, 2, 4),
             Action::fret_action(8800, 9000, 3, 4),
+            Action::fret_action(9200, 10400, 4, 1),
+            Action::fret_action(9200, 10400, 4, 2),
+            Action::fret_action(9200, 10400, 4, 3),
             Action::fret_action(9200, 10400, 4, 4),
+            Action::fret_action(9200, 10400, 4, 5),
+            Action::fret_action(9200, 10400, 4, 6),
         ];
         callback.emit(TrackLoadResult::Loaded(Track { actions }))
     }

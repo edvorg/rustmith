@@ -161,7 +161,7 @@ impl Renderer {
 
                     let mut model_matrix: Matrix4<f32> = Matrix4::identity();
                     let x = f32::from(*fret);
-                    let y = f32::from(*string) - 5.0;
+                    let y = f32::from(*string) * 0.5 - 5.0;
                     let z = (action.starts_at().total_millis() as f32 - game_time as f32) * 0.001 as f32;
                     let length = (action.ends_at().total_millis() - action.starts_at().total_millis()) as f32 * 0.001;
                     model_matrix *= Matrix4::new_translation(&Vector3::new(x, y, -z));

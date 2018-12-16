@@ -2,7 +2,10 @@ use crate::graphics::renderer::RendererModel;
 use crate::guitar_effects::GuitarEffectsModel;
 use crate::registry::Registry;
 use crate::services::ext::WindowExt;
+use crate::services::track::TrackLoadResult;
+use crate::services::track::TrackService;
 use crate::tuner::TunerModel;
+use rustmith_common::track::Track;
 use stdweb::web::window;
 use yew::prelude::*;
 use yew_audio::MediaStream;
@@ -17,6 +20,7 @@ pub enum RoutingMessage {
 pub enum GameMessage {
     Exit,
     ConnectMicrophone(MediaStream),
+    TrackReceived(TrackLoadResult),
 }
 
 struct GameStats {
@@ -30,6 +34,7 @@ pub struct GameModel {
     #[allow(dead_code)]
     song_id: Option<String>,
     song_url: Option<String>,
+    track: Option<Track>,
     stats: GameStats,
     mic: Option<MediaStreamSource>,
 }
@@ -57,12 +62,15 @@ impl Component<Registry> for GameModel {
 
     fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
-        let on_mic = env.send_back(GameMessage::ConnectMicrophone);
-        env.audio.get_user_media().call_audio(on_mic);
+        GameModel::fetch_mic(env);
+        if let Some(song_id) = &props.songid {
+            GameModel::fetch_track(env, song_id);
+        }
         GameModel {
             on_signal: props.onsignal,
             song_id: props.songid,
             song_url: props.songurl,
+            track: None,
             stats: GameStats {
                 notes_missed: 0,
                 notes_hit: 0,
@@ -89,10 +97,22 @@ impl Component<Registry> for GameModel {
                 self.mic = Some(mic);
                 true
             }
+            GameMessage::TrackReceived(TrackLoadResult::Loaded(track)) => {
+                self.track = Some(track);
+                true
+            }
+            GameMessage::TrackReceived(TrackLoadResult::Error) => {
+                self.track = None;
+                env.console.warn(&format!("Unable to load track {:?}", &self.song_id));
+                true
+            }
         }
     }
 
-    fn change(&mut self, _: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
+    fn change(&mut self, props: Self::Properties, env: &mut Env<Registry, Self>) -> bool {
+        if let Some(song_id) = &props.songid {
+            GameModel::fetch_track(env, song_id);
+        }
         false
     }
 }
@@ -103,7 +123,7 @@ impl Renderable<Registry, GameModel> for GameModel {
           <div class="game",>
             <div class="game-view",>
               <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
-              <RendererModel: />
+              <RendererModel: track=&self.track, />
             </div>
             <div class="game-video",>
               <iframe id="video-clip",
@@ -127,5 +147,19 @@ impl Renderable<Registry, GameModel> for GameModel {
             <TunerModel: mic=self.mic.clone(), />
           </div>
         }
+    }
+}
+
+impl GameModel {
+    fn fetch_track(env: &mut Env<Registry, GameModel>, song_id: &str) {
+        let on_song = env.send_back(GameMessage::TrackReceived);
+        env.track.load_track(song_id, on_song);
+    }
+}
+
+impl GameModel {
+    fn fetch_mic(env: &mut Env<Registry, GameModel>) {
+        let on_mic = env.send_back(GameMessage::ConnectMicrophone);
+        env.audio.get_user_media().call_audio(on_mic);
     }
 }

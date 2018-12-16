@@ -6,6 +6,7 @@ description = "Rocksmith clone for Web platform (Frontend)"
 edition = "2018"
 
 [dependencies]
+nalgebra = "0.16.12"
 yew = "0.4.0"
 yew_audio = { path = "../yew_audio" }
 stdweb = "0.4.10"

@@ -4,37 +4,34 @@ extern crate serde_derive;
 #[macro_use]
 extern crate stdweb;
 
-#[derive(Serialize, Clone)]
-pub struct Note {
-    pub frequency: f64,
-    pub name: String,
-}
+pub mod ext;
+pub mod note;
+pub mod track;
 
-#[cfg(target_arch = "wasm32")]
-js_serializable!(Note);
+#[cfg(test)]
+mod tests {
+    use crate::track::Action;
+    use crate::track::Track;
+    use std::time::Duration;
 
-impl Note {
-    pub fn make_test_frequencies() -> Vec<Note> {
-        let r: Vec<_> = (0..30).collect();
-        r.into_iter()
-            .flat_map(|i| {
-                let c2 = 65.41f64;
-                let notes = vec!["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-                let frequency = c2 * 2.0f64.powf(f64::from(i as u32) / 12.0);
-                let name = String::from(notes[i % 12]);
-                let above_name = format!("{} (a bit sharp)", &name);
-                let below_name = format!("{} (a bit flat)", &name);
-                let note = Note { frequency, name };
-                let just_above = Note {
-                    frequency: frequency * 2.0f64.powf(1.0 / 48.0),
-                    name: above_name,
-                };
-                let just_below = Note {
-                    frequency: frequency * 2.0f64.powf(-1.0 / 48.0),
-                    name: below_name,
-                };
-                vec![just_below, note, just_above]
-            })
-            .collect()
+    #[test]
+    fn test_view_1() {
+        let actions = vec![
+            Action::fret_action(2000, 2200, 10, 3),
+            Action::fret_action(2400, 2600, 10, 3),
+            Action::fret_action(2800, 3000, 10, 3),
+            Action::fret_action(3200, 4200, 10, 3),
+            Action::fret_action(4400, 5400, 10, 3),
+        ];
+        let track = Track { actions };
+        assert_eq!(0, track.view(Duration::from_millis(4500)).len());
+        assert_eq!(1, track.view(Duration::from_millis(3300)).len());
+        assert_eq!(2, track.view(Duration::from_millis(2900)).len());
+        assert_eq!(3, track.view(Duration::from_millis(2500)).len());
+        assert_eq!(4, track.view(Duration::from_millis(2100)).len());
+        assert_eq!(5, track.view(Duration::from_millis(0)).len());
+        for action in &track.actions {
+            assert_eq!(true, *action.starts_at() < *action.ends_at())
+        }
     }
 }

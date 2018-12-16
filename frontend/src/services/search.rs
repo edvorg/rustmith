@@ -63,8 +63,32 @@ pub struct StubSearchService {
     items: Vec<SearchItem>,
 }
 
-impl StubSearchService {
-    pub fn new() -> StubSearchService {
+impl SearchService for StubSearchService {
+    fn search(&self, term: &str, continuation_token: Option<&String>, callback: Callback<SearchResponse>) {
+        let lowercase_term = String::from(term).to_lowercase();
+        let batch_size = 3;
+        let results = self.items.iter().filter(|i| i.name.to_lowercase().contains(&lowercase_term));
+        let skip = continuation_token.map(|t| usize::from_str(t).unwrap()).unwrap_or(0);
+        let results_at_cursor: Vec<&SearchItem> = results.skip(skip).collect();
+        let response = if results_at_cursor.len() > batch_size {
+            SearchResponse::Result {
+                term: term.into(),
+                items: results_at_cursor.into_iter().cloned().take(batch_size).collect(),
+                continuation_token: Some((skip + batch_size).to_string()),
+            }
+        } else {
+            SearchResponse::Result {
+                term: term.into(),
+                items: results_at_cursor.into_iter().cloned().collect(),
+                continuation_token: None,
+            }
+        };
+        callback.emit(response);
+    }
+}
+
+impl Default for StubSearchService {
+    fn default() -> Self {
         let songs = vec![
             ("Jimi Hendrix - Foxey Lady", "vsI15ei76bg"),
             ("Queen - Bohemian Rhapsody", "fJ9rUzIMcZQ"),
@@ -93,29 +117,5 @@ impl StubSearchService {
             })
             .collect();
         StubSearchService { items }
-    }
-}
-
-impl SearchService for StubSearchService {
-    fn search(&self, term: &str, continuation_token: Option<&String>, callback: Callback<SearchResponse>) {
-        let lowercase_term = String::from(term).to_lowercase();
-        let batch_size = 3;
-        let results = self.items.iter().filter(|i| i.name.to_lowercase().contains(&lowercase_term));
-        let skip = continuation_token.map(|t| usize::from_str(t).unwrap()).unwrap_or(0);
-        let results_at_cursor: Vec<&SearchItem> = results.skip(skip).collect();
-        let response = if results_at_cursor.len() > batch_size {
-            SearchResponse::Result {
-                term: term.into(),
-                items: results_at_cursor.into_iter().cloned().take(batch_size).collect(),
-                continuation_token: Some((skip + batch_size).to_string()),
-            }
-        } else {
-            SearchResponse::Result {
-                term: term.into(),
-                items: results_at_cursor.into_iter().cloned().collect(),
-                continuation_token: None,
-            }
-        };
-        callback.emit(response);
     }
 }

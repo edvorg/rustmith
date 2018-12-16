@@ -1,4 +1,4 @@
-use rustmith_common::Note;
+use rustmith_common::note::Note;
 
 fn main() {
     let freqs = Note::make_test_frequencies();

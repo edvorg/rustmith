@@ -14,17 +14,19 @@ mod tuner;
 mod services {
     pub mod ext;
     pub mod search;
+    pub mod track;
     pub mod worker;
 }
 
 mod graphics {
-    pub mod algebra;
+    pub mod objects;
     pub mod renderer;
     pub mod shaders;
 }
 
 use crate::registry::Registry;
 use crate::services::search::StubSearchService;
+use crate::services::track::StubTrackService;
 use stdweb::web::document;
 use stdweb::web::INonElementParentNode;
 use yew::prelude::*;
@@ -41,13 +43,15 @@ fn main() {
     yew::initialize();
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
-    let search = StubSearchService::new();
+    let search = StubSearchService::default();
     let audio = AudioService::default();
+    let track = StubTrackService::default();
     let registry = Registry {
         console,
         timeout,
         search,
         audio,
+        track,
     };
     let app = App::<Registry, root::RootModel>::new(registry);
     app.mount(document().get_element_by_id("app").unwrap());

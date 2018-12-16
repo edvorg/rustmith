@@ -1,5 +1,6 @@
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
+use stdweb::web::window;
 use stdweb::web::Window;
 use webgl_rendering_context::WebGLRenderingContext;
 use yew_audio::AudioNode;
@@ -20,6 +21,9 @@ impl WindowExt for Window {
 pub trait CanvasElementExt {
     fn client_width(&self) -> f64;
     fn client_height(&self) -> f64;
+    fn size(&self) -> (f32, f32);
+    fn adjust_dpi(&mut self) -> (f32, f32);
+    fn make_context(&self) -> WebGLRenderingContext;
 }
 
 impl CanvasElementExt for CanvasElement {
@@ -37,6 +41,25 @@ impl CanvasElementExt for CanvasElement {
         )
         .try_into()
         .unwrap()
+    }
+
+    fn size(&self) -> (f32, f32) {
+        (self.width() as f32, self.height() as f32)
+    }
+
+    fn adjust_dpi(&mut self) -> (f32, f32) {
+        let real_to_css_pixels = window().device_pixel_ratio();
+        let display_width = (self.client_width() * real_to_css_pixels).floor() as u32;
+        let display_height = (self.client_height() * real_to_css_pixels).floor() as u32;
+        if self.width() != display_width || self.height() != display_height {
+            self.set_width(display_width);
+            self.set_height(display_height);
+        }
+        self.size()
+    }
+
+    fn make_context(&self) -> WebGLRenderingContext {
+        self.get_context().unwrap()
     }
 }
 

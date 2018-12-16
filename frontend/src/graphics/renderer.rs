@@ -1,10 +1,19 @@
 use crate::fps::FpsModel;
 use crate::fps::FpsStats;
-use crate::graphics::algebra;
-use crate::graphics::shaders;
+use crate::graphics::objects::make_fret;
+use crate::graphics::objects::make_object;
+use crate::graphics::objects::Object;
+use crate::graphics::shaders::make_program;
+use crate::graphics::shaders::Program;
 use crate::registry::Registry;
 use crate::services::ext::CanvasElementExt;
 use crate::services::ext::WebGLRenderingContextExt;
+use nalgebra::*;
+use rustmith_common::ext::DurationExt;
+use rustmith_common::track::Action;
+use rustmith_common::track::Fret;
+use rustmith_common::track::Track;
+use std::time::Duration;
 use stdweb::unstable::TryInto;
 use stdweb::web::document;
 use stdweb::web::event::ResizeEvent;
@@ -13,20 +22,16 @@ use stdweb::web::window;
 use stdweb::web::IEventTarget;
 use stdweb::web::IParentNode;
 use stdweb::web::RequestAnimationFrameHandle;
-use stdweb::web::TypedArray;
-use webgl_rendering_context::{WebGLBuffer, WebGLRenderingContext as gl, WebGLUniformLocation};
+use webgl_rendering_context::WebGLRenderingContext as gl;
 use yew::prelude::Component;
 use yew::prelude::Env;
 use yew::prelude::Html;
 use yew::prelude::Renderable;
 
 pub struct Renderer {
-    pub p_matrix: WebGLUniformLocation,
-    pub v_matrix: WebGLUniformLocation,
-    pub m_matrix: WebGLUniformLocation,
-    pub mov_matrix: [f32; 16],
-    pub view_matrix: [f32; 16],
-    pub index_buffer: WebGLBuffer,
+    pub program: Program,
+    pub view_matrix: Matrix4<f32>,
+    pub frets: Vec<Object>,
     pub context: gl,
     pub width: f32,
     pub height: f32,
@@ -36,8 +41,10 @@ pub struct RendererModel {
     renderer: Option<Renderer>,
     job: Box<RequestAnimationFrameHandle>,
     last_time: Option<f64>,
+    game_time: f64,
     fps: FpsStats,
     fps_snapshot: FpsStats,
+    track: Option<Track>,
 }
 
 pub enum RendererMessage {
@@ -46,11 +53,13 @@ pub enum RendererMessage {
 }
 
 #[derive(Clone, PartialEq)]
-pub struct RendererProps {}
+pub struct RendererProps {
+    pub track: Option<Track>,
+}
 
 impl Default for RendererProps {
     fn default() -> Self {
-        RendererProps {}
+        RendererProps { track: None }
     }
 }
 
@@ -58,13 +67,15 @@ impl Component<Registry> for RendererModel {
     type Message = RendererMessage;
     type Properties = RendererProps;
 
-    fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
+    fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         RendererModel {
             renderer: None,
             last_time: None,
+            game_time: 0.0,
             job: RendererModel::animate(env),
             fps: FpsStats::new(),
             fps_snapshot: FpsStats::new(),
+            track: props.track,
         }
     }
 
@@ -75,13 +86,15 @@ impl Component<Registry> for RendererModel {
                     self.renderer = self.setup_graphics(env);
                 }
                 let delta_millis = time - self.last_time.unwrap_or(time);
-                if let Some(r) = &mut self.renderer {
-                    r.render(delta_millis / 1000.0);
+                if let (Some(r), Some(track)) = (&mut self.renderer, &self.track) {
+                    let track_view = track.view(Duration::from_millis(self.game_time as u64));
+                    r.render(self.game_time, track_view);
                 } else {
                     env.console.warn("Something is wrong, renderer not found");
                 }
                 self.job = RendererModel::animate(env);
                 self.last_time = Some(time);
+                self.game_time += delta_millis;
 
                 self.fps.log_frame(delta_millis);
                 if self.fps.time > 2000.0 {
@@ -104,30 +117,65 @@ impl Component<Registry> for RendererModel {
         }
     }
 
-    fn change(&mut self, _props: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
+    fn change(&mut self, props: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
+        self.track = props.track;
         false
     }
 }
 
 impl Renderer {
-    pub fn render(&mut self, delta: f64) {
-        self.context.clear_color(1.0, 0.0, 0.0, 1.0);
-        self.context.clear(gl::COLOR_BUFFER_BIT);
-        algebra::rotate_z(&mut self.mov_matrix, delta as f32);
-        algebra::rotate_y(&mut self.mov_matrix, delta as f32);
-        algebra::rotate_x(&mut self.mov_matrix, delta as f32);
+    pub fn render(&mut self, game_time: f64, track_view: Vec<&Action>) {
         self.context.enable(gl::DEPTH_TEST);
         self.context.depth_func(gl::LEQUAL);
         self.context.clear_color(0.5, 0.5, 0.5, 0.9);
         self.context.clear_depth(1.0);
-        let proj_matrix = algebra::get_projection(40., self.width / self.height, 1., 100.);
         self.context.viewport(0, 0, self.width as i32, self.height as i32);
+
         self.context.clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-        self.context.uniform_matrix4fv(Some(&self.p_matrix), false, &proj_matrix[..]);
-        self.context.uniform_matrix4fv(Some(&self.v_matrix), false, &self.view_matrix[..]);
-        self.context.uniform_matrix4fv(Some(&self.m_matrix), false, &self.mov_matrix[..]);
-        self.context.bind_buffer(gl::ELEMENT_ARRAY_BUFFER, Some(&self.index_buffer));
-        self.context.draw_elements(gl::TRIANGLES, 36, gl::UNSIGNED_SHORT, 0);
+
+        let proj_matrix = Matrix4::new_perspective(self.width / self.height, 60.0 / 180.0 * std::f32::consts::PI, 1.0, 1000.0);
+        self.context
+            .uniform_matrix4fv(Some(&self.program.proj_matrix_location), false, &proj_matrix.as_slice()[..]);
+
+        self.context
+            .uniform_matrix4fv(Some(&self.program.view_matrix_location), false, &self.view_matrix.as_slice()[..]);
+
+        for action in track_view {
+            match action {
+                Action::Fret(Fret { fret, string, .. }) => {
+                    // Position
+                    self.context
+                        .bind_buffer(gl::ARRAY_BUFFER, Some(&self.frets[*string as usize - 1].vertex_buffer));
+                    self.context.vertex_attrib_pointer(self.program.position, 3, gl::FLOAT, false, 0, 0);
+                    self.context.enable_vertex_attrib_array(self.program.position);
+
+                    // Color
+                    self.context
+                        .bind_buffer(gl::ARRAY_BUFFER, Some(&self.frets[*string as usize - 1].color_buffer));
+                    self.context.vertex_attrib_pointer(self.program.color, 3, gl::FLOAT, false, 0, 0);
+                    self.context.enable_vertex_attrib_array(self.program.color);
+
+                    // Indices
+                    self.context
+                        .bind_buffer(gl::ELEMENT_ARRAY_BUFFER, Some(&self.frets[*string as usize - 1].index_buffer));
+
+                    let mut model_matrix: Matrix4<f32> = Matrix4::identity();
+                    let x = f32::from(*fret);
+                    let y = f32::from(*string) - 5.0;
+                    let z = (action.starts_at().total_millis() as f32 - game_time as f32) * 0.001 as f32;
+                    let length = (action.ends_at().total_millis() - action.starts_at().total_millis()) as f32 * 0.001;
+                    model_matrix *= Matrix4::new_translation(&Vector3::new(x, y, -z));
+                    model_matrix *= Matrix4::from_diagonal(&Vector4::new(0.5, 0.25, 0.5 * length, 1.0));
+                    model_matrix *= Matrix4::new_translation(&Vector3::new(0.0, 0.0, -1.0));
+                    self.context
+                        .uniform_matrix4fv(Some(&self.program.model_matrix_location), false, &model_matrix.as_slice()[..]);
+                    self.context.draw_elements(gl::TRIANGLES, 36, gl::UNSIGNED_SHORT, 0);
+                }
+                _ => {
+                    js! { console.log("unsupported action"); };
+                }
+            }
+        }
     }
 
     pub fn set_viewport(&mut self, width: f32, height: f32) {
@@ -136,98 +184,28 @@ impl Renderer {
         self.height = height;
     }
 
-    pub fn make_context(canvas: &CanvasElement) -> gl {
-        canvas.get_context().unwrap()
-    }
-
     pub fn new(context: gl, size: (f32, f32)) -> Self {
         context.update_size(size);
         let (width, height) = size;
-        let vert_shader = context.create_shader(gl::VERTEX_SHADER).unwrap();
-        context.shader_source(&vert_shader, shaders::VERTEX_CODE);
-        context.compile_shader(&vert_shader);
 
-        let frag_shader = context.create_shader(gl::FRAGMENT_SHADER).unwrap();
-        context.shader_source(&frag_shader, shaders::FRAGMENT_CODE);
-        context.compile_shader(&frag_shader);
+        let program = make_program(&context);
 
-        let shader_program = context.create_program().unwrap();
-        context.attach_shader(&shader_program, &vert_shader);
-        context.attach_shader(&shader_program, &frag_shader);
-        context.link_program(&shader_program);
-        context.use_program(Some(&shader_program));
+        let frets = vec![
+            make_object(&context, make_fret(223.0 / 255.0, 105.0 / 255.0, 250.0 / 255.0)),
+            make_object(&context, make_fret(97.0 / 255.0, 246.0 / 255.0, 35.0 / 255.0)),
+            make_object(&context, make_fret(245.0 / 255.0, 167.0 / 255.0, 25.0 / 255.0)),
+            make_object(&context, make_fret(50.0 / 255.0, 216.0 / 255.0, 228.0 / 255.0)),
+            make_object(&context, make_fret(220.0 / 255.0, 217.0 / 255.0, 49.0 / 255.0)),
+            make_object(&context, make_fret(226.0 / 255.0, 47.0 / 255.0, 44.0 / 255.0)),
+        ];
 
-        /* ====== Associating attributes to vertex shader =====*/
-        let p_matrix = context.get_uniform_location(&shader_program, "Pmatrix").unwrap();
-        let v_matrix = context.get_uniform_location(&shader_program, "Vmatrix").unwrap();
-        let m_matrix = context.get_uniform_location(&shader_program, "Mmatrix").unwrap();
-
-        let vertices = TypedArray::<f32>::from(
-            &[
-                -1., -1., -1., 1., -1., -1., 1., 1., -1., -1., 1., -1., -1., -1., 1., 1., -1., 1., 1., 1., 1., -1., 1., 1., -1., -1., -1., -1., 1.,
-                -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1., -1., 1., 1., 1., 1., -1., 1., -1., -1., -1., -1., -1., 1., 1., -1., 1., 1.,
-                -1., -1., -1., 1., -1., -1., 1., 1., 1., 1., 1., 1., 1., -1.,
-            ][..],
-        )
-        .buffer();
-
-        let colors = TypedArray::<f32>::from(
-            &[
-                5., 3., 7., 5., 3., 7., 5., 3., 7., 5., 3., 7., 1., 1., 3., 1., 1., 3., 1., 1., 3., 1., 1., 3., 0., 0., 1., 0., 0., 1., 0., 0., 1.,
-                0., 0., 1., 1., 0., 0., 1., 0., 0., 1., 0., 0., 1., 0., 0., 1., 1., 0., 1., 1., 0., 1., 1., 0., 1., 1., 0., 0., 1., 0., 0., 1., 0.,
-                0., 1., 0., 0., 1., 0.,
-            ][..],
-        )
-        .buffer();
-
-        let indices = TypedArray::<u16>::from(
-            &[
-                0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23,
-            ][..],
-        )
-        .buffer();
-
-        // Create and store data into vertex buffer
-        let vertex_buffer = context.create_buffer().unwrap();
-        context.bind_buffer(gl::ARRAY_BUFFER, Some(&vertex_buffer));
-        context.buffer_data_1(gl::ARRAY_BUFFER, Some(&vertices), gl::STATIC_DRAW);
-
-        // Create and store data into color buffer
-        let color_buffer = context.create_buffer().unwrap();
-        context.bind_buffer(gl::ARRAY_BUFFER, Some(&color_buffer));
-        context.buffer_data_1(gl::ARRAY_BUFFER, Some(&colors), gl::STATIC_DRAW);
-
-        // Create and store data into index buffer
-        let index_buffer = context.create_buffer().unwrap();
-        context.bind_buffer(gl::ELEMENT_ARRAY_BUFFER, Some(&index_buffer));
-        context.buffer_data_1(gl::ELEMENT_ARRAY_BUFFER, Some(&indices), gl::STATIC_DRAW);
-
-        context.bind_buffer(gl::ARRAY_BUFFER, Some(&vertex_buffer));
-        let position = context.get_attrib_location(&shader_program, "position") as u32;
-        context.vertex_attrib_pointer(position, 3, gl::FLOAT, false, 0, 0);
-
-        // Position
-        context.enable_vertex_attrib_array(position);
-        context.bind_buffer(gl::ARRAY_BUFFER, Some(&color_buffer));
-        let color = context.get_attrib_location(&shader_program, "color") as u32;
-        context.vertex_attrib_pointer(color, 3, gl::FLOAT, false, 0, 0);
-
-        // Color
-        context.enable_vertex_attrib_array(color);
-
-        let mov_matrix = [1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1.];
-        let mut view_matrix = [1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1.];
-
-        // translating z
-        view_matrix[14] -= 6.;
+        let mut view_matrix = Matrix4::new_translation(&Vector3::new(0.0, 0.0, -10.0));
+        view_matrix *= Matrix4::from_euler_angles(std::f32::consts::PI / 6.0, 0.0, 0.0);
 
         Renderer {
-            p_matrix,
-            v_matrix,
-            m_matrix,
-            mov_matrix,
+            program,
             view_matrix,
-            index_buffer,
+            frets,
             context,
             width,
             height,
@@ -255,34 +233,16 @@ impl RendererModel {
         Box::new(window().request_animation_frame(f))
     }
 
-    fn update_canvas(canvas: &mut CanvasElement) {
-        let real_to_css_pixels = window().device_pixel_ratio();
-        let display_width = (canvas.client_width() * real_to_css_pixels).floor() as u32;
-        let display_height = (canvas.client_height() * real_to_css_pixels).floor() as u32;
-        if canvas.width() != display_width || canvas.height() != display_height {
-            canvas.set_width(display_width);
-            canvas.set_height(display_height);
-        }
-    }
-
-    fn get_canvas_size(canvas: &CanvasElement) -> (f32, f32) {
-        (canvas.width() as f32, canvas.height() as f32)
-    }
-
     fn setup_graphics(&self, env: &mut Env<Registry, Self>) -> Option<Renderer> {
         env.console.log("Setting up graphics context");
         match document().query_selector("#canvas") {
             Ok(Some(canvas)) => {
                 let mut canvas: CanvasElement = canvas.try_into().unwrap();
-                RendererModel::update_canvas(&mut canvas);
-                let context = Renderer::make_context(&canvas);
-                let size = RendererModel::get_canvas_size(&canvas);
-                let renderer = Renderer::new(context, size);
+                let context = canvas.make_context();
+                let renderer = Renderer::new(context, canvas.adjust_dpi());
                 let callback = env.send_back(|m| m);
                 window().add_event_listener(move |_: ResizeEvent| {
-                    RendererModel::update_canvas(&mut canvas);
-                    let size = RendererModel::get_canvas_size(&canvas);
-                    callback.emit(RendererMessage::Resize(size));
+                    callback.emit(RendererMessage::Resize(canvas.adjust_dpi()));
                 });
                 env.console.log("Graphics context inititalized");
                 Some(renderer)

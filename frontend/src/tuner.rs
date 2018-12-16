@@ -1,6 +1,6 @@
 use crate::registry::Registry;
 use crate::services::worker::Worker;
-use rustmith_common::Note;
+use rustmith_common::note::Note;
 use std::time::Duration;
 use stdweb::unstable::TryInto;
 use stdweb::web::document;

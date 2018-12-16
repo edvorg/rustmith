@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate stdweb;
 
-use rustmith_common::Note;
+use rustmith_common::note::Note;
 use stdweb::unstable::TryInto;
 use stdweb::Value;
 

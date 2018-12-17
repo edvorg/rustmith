@@ -10,26 +10,27 @@ pub mod track;
 
 #[cfg(test)]
 mod tests {
-    use crate::track::Action;
     use crate::track::Track;
     use std::time::Duration;
+    use crate::track::fret_action;
 
     #[test]
     fn test_view_1() {
         let actions = vec![
-            Action::fret_action(2000, 2200, 10, 3),
-            Action::fret_action(2400, 2600, 10, 3),
-            Action::fret_action(2800, 3000, 10, 3),
-            Action::fret_action(3200, 4200, 10, 3),
-            Action::fret_action(4400, 5400, 10, 3),
+            fret_action(2000, 2200, 10, 3),
+            fret_action(2400, 2600, 10, 3),
+            fret_action(2800, 3000, 10, 3),
+            fret_action(3200, 4200, 10, 3),
+            fret_action(4400, 5400, 10, 3),
         ];
-        let track = Track { actions };
-        assert_eq!(0, track.view(Duration::from_millis(4500)).len());
-        assert_eq!(1, track.view(Duration::from_millis(3300)).len());
-        assert_eq!(2, track.view(Duration::from_millis(2900)).len());
-        assert_eq!(3, track.view(Duration::from_millis(2500)).len());
-        assert_eq!(4, track.view(Duration::from_millis(2100)).len());
-        assert_eq!(5, track.view(Duration::from_millis(0)).len());
+        let hand_positions = vec!();
+        let track = Track { actions, hand_positions };
+        assert_eq!(0, track.view(Duration::from_millis(4500)).actions.len());
+        assert_eq!(1, track.view(Duration::from_millis(3300)).actions.len());
+        assert_eq!(2, track.view(Duration::from_millis(2900)).actions.len());
+        assert_eq!(3, track.view(Duration::from_millis(2500)).actions.len());
+        assert_eq!(4, track.view(Duration::from_millis(2100)).actions.len());
+        assert_eq!(5, track.view(Duration::from_millis(0)).actions.len());
         for action in &track.actions {
             assert_eq!(true, *action.starts_at() < *action.ends_at())
         }

@@ -35,11 +35,6 @@ use yew::services::console::ConsoleService;
 use yew::services::timeout::TimeoutService;
 use yew_audio::AudioService;
 
-#[test]
-fn test_fail() {
-    assert_eq!(1, 2);
-}
-
 fn main() {
     yew::initialize();
     let console = ConsoleService::new();

@@ -1,5 +1,6 @@
 use crate::fps::FpsModel;
 use crate::fps::FpsStats;
+use crate::graphics::camera::Camera;
 use crate::graphics::objects::make_fret;
 use crate::graphics::objects::make_object;
 use crate::graphics::objects::Object;
@@ -13,6 +14,7 @@ use rustmith_common::ext::DurationExt;
 use rustmith_common::track::Action;
 use rustmith_common::track::Fret;
 use rustmith_common::track::Track;
+use rustmith_common::track::TrackView;
 use std::time::Duration;
 use stdweb::unstable::TryInto;
 use stdweb::web::document;
@@ -30,7 +32,7 @@ use yew::prelude::Renderable;
 
 pub struct Renderer {
     pub program: Program,
-    pub view_matrix: Matrix4<f32>,
+    pub camera: Option<Camera>,
     pub frets: Vec<Object>,
     pub context: gl,
     pub width: f32,
@@ -88,7 +90,7 @@ impl Component<Registry> for RendererModel {
                 let delta_millis = time - self.last_time.unwrap_or(time);
                 if let (Some(r), Some(track)) = (&mut self.renderer, &self.track) {
                     let track_view = track.view(Duration::from_millis(self.game_time as u64));
-                    r.render(self.game_time, track_view);
+                    r.render(delta_millis, self.game_time, track_view);
                 } else {
                     env.console.warn("Something is wrong, renderer not found");
                 }
@@ -124,7 +126,7 @@ impl Component<Registry> for RendererModel {
 }
 
 impl Renderer {
-    pub fn render(&mut self, game_time: f64, track_view: Vec<&Action>) {
+    pub fn render(&mut self, time_delta: f64, game_time: f64, track_view: TrackView) {
         self.context.enable(gl::DEPTH_TEST);
         self.context.depth_func(gl::LEQUAL);
         self.context.clear_color(0.5, 0.5, 0.5, 0.9);
@@ -137,10 +139,18 @@ impl Renderer {
         self.context
             .uniform_matrix4fv(Some(&self.program.proj_matrix_location), false, &proj_matrix.as_slice()[..]);
 
-        self.context
-            .uniform_matrix4fv(Some(&self.program.view_matrix_location), false, &self.view_matrix.as_slice()[..]);
+        let hand_track_target = -f32::from(track_view.hand_positions[0].fret);
+        if self.camera.is_none() {
+            self.camera = Some(Camera { x: hand_track_target });
+        }
+        if let Some(ref mut camera) = &mut self.camera {
+            camera.interpolate(hand_track_target, time_delta * 0.001);
+            let view_matrix = camera.matrix();
+            self.context
+                .uniform_matrix4fv(Some(&self.program.view_matrix_location), false, &view_matrix.as_slice()[..]);
+        }
 
-        for action in track_view {
+        for action in track_view.actions {
             match action {
                 Action::Fret(Fret { fret, string, .. }) => {
                     // Position
@@ -199,13 +209,10 @@ impl Renderer {
             make_object(&context, make_fret(226.0 / 255.0, 47.0 / 255.0, 44.0 / 255.0)),
         ];
 
-        let mut view_matrix = Matrix4::new_translation(&Vector3::new(0.0, 0.0, -10.0));
-        view_matrix *= Matrix4::from_euler_angles(std::f32::consts::PI / 6.0, 0.0, 0.0);
-
         Renderer {
             program,
-            view_matrix,
             frets,
+            camera: None,
             context,
             width,
             height,

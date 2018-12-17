@@ -19,6 +19,7 @@ mod services {
 }
 
 mod graphics {
+    pub mod camera;
     pub mod objects;
     pub mod renderer;
     pub mod shaders;

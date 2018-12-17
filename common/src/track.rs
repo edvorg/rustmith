@@ -23,15 +23,6 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn fret_action(starts_at: u64, ends_at: u64, fret: u8, string: u8) -> Action {
-        Action::Fret(Fret {
-            fret,
-            string,
-            starts_at: Duration::from_millis(starts_at),
-            ends_at: Duration::from_millis(ends_at),
-        })
-    }
-
     pub fn starts_at(&self) -> &Duration {
         match self {
             Action::Fret(f) => &f.starts_at,
@@ -50,13 +41,43 @@ impl Action {
 }
 
 #[derive(PartialEq, Clone)]
+pub struct HandPosition {
+    pub fret: u8,
+    pub at: Duration,
+}
+
+#[derive(PartialEq, Clone)]
 pub struct Track {
     pub actions: Vec<Action>,
+    pub hand_positions: Vec<HandPosition>,
+}
+
+pub struct TrackView<'a> {
+    pub actions: Vec<&'a Action>,
+    pub hand_positions: Vec<&'a HandPosition>,
 }
 
 impl Track {
-    pub fn view(&self, from: Duration) -> Vec<&Action> {
+    pub fn view(&self, from: Duration) -> TrackView {
         let until = from + Duration::from_secs(60);
-        self.actions.iter().filter(|a| from <= *a.starts_at() && *a.ends_at() <= until).collect()
+        let actions = self.actions.iter().filter(|a| from <= *a.starts_at() && *a.ends_at() <= until).collect();
+        let hand_positions = self.hand_positions.iter().filter(|p| from <= p.at).collect();
+        TrackView { actions, hand_positions }
+    }
+}
+
+pub fn fret_action(starts_at: u64, ends_at: u64, fret: u8, string: u8) -> Action {
+    Action::Fret(Fret {
+        fret,
+        string,
+        starts_at: Duration::from_millis(starts_at),
+        ends_at: Duration::from_millis(ends_at),
+    })
+}
+
+pub fn hand_position(at: u64, fret: u8) -> HandPosition {
+    HandPosition {
+        fret,
+        at: Duration::from_millis(at),
     }
 }

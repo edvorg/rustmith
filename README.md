@@ -10,6 +10,8 @@ Simply run
 rustup default nightly
 rustup update
 rustup target add wasm32-unknown-unknown
+rustup component add clippy
+rustup component add rustfmt
 cargo install --force cargo-web
 
 # during development

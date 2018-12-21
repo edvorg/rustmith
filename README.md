@@ -6,8 +6,6 @@ Rocksmith clone for Web platform
 First time setup:
 
 ```shell
-#
-
 rustup default nightly
 rustup update
 rustup target add wasm32-unknown-unknown

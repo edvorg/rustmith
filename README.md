@@ -24,5 +24,5 @@ During development:
 # build frontend
 cargo web start -p rustmith_frontend --auto-reload
 
-# open localhost:8000 in browser
+# open localhost:9000 in browser
 ```

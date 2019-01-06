@@ -9,7 +9,7 @@ fi
 
 git checkout ${1}
 
-cargo clean
+# cargo clean
 cargo clippy -- -D warnings
 cargo test
 ./build-worker.sh

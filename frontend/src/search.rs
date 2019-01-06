@@ -1,12 +1,17 @@
 use crate::registry::Registry;
-use crate::services::search::SearchItem;
-use crate::services::search::SearchResponse;
-use crate::services::search::SearchService;
+use crate::services::track::SearchItem;
+use crate::services::track::SearchResponse;
+use crate::services::track::TrackService;
 use yew::prelude::*;
 
+#[derive(Debug)]
 pub enum RoutingMessage {
     /// switch to game screen and load song with id song_id
-    StartGame { song_id: String, song_url: String },
+    StartGame {
+        song_id: String,
+        song_url: String,
+    },
+    NewSong,
 }
 
 #[derive(Debug)]
@@ -16,7 +21,7 @@ pub enum SearchMessage {
     UnknownKey,
     ResultsReceived(SearchResponse),
     LoadMore { term: String, continuation_token: String },
-    PlayGame { song_id: String, song_url: String },
+    Route(RoutingMessage),
 }
 
 pub struct SearchModel {
@@ -28,11 +33,15 @@ pub struct SearchModel {
 #[derive(PartialEq, Clone)]
 pub struct SearchProps {
     pub onsignal: Option<Callback<RoutingMessage>>,
+    pub trackname: Option<String>,
 }
 
 impl Default for SearchProps {
     fn default() -> Self {
-        SearchProps { onsignal: None }
+        SearchProps {
+            onsignal: None,
+            trackname: None,
+        }
     }
 }
 
@@ -57,12 +66,12 @@ impl Component<Registry> for SearchModel {
             SearchMessage::Search => {
                 self.search_results = None;
                 let callback = env.send_back(SearchMessage::ResultsReceived);
-                env.search.search(&self.search_str, None, callback);
+                env.track.search(&self.search_str, None, callback);
                 true
             }
             SearchMessage::LoadMore { term, continuation_token } => {
                 let callback = env.send_back(SearchMessage::ResultsReceived);
-                env.search.search(&term, Some(&continuation_token), callback);
+                env.track.search(&term, Some(&continuation_token), callback);
                 false
             }
             SearchMessage::ResultsReceived(r) => {
@@ -74,9 +83,9 @@ impl Component<Registry> for SearchModel {
                 self.search_results = Some(results);
                 true
             }
-            SearchMessage::PlayGame { song_id, song_url } => {
+            SearchMessage::Route(message) => {
                 if let Some(callback) = &self.onsignal {
-                    callback.emit(RoutingMessage::StartGame { song_id, song_url });
+                    callback.emit(message);
                 }
                 false
             }
@@ -108,6 +117,7 @@ impl Renderable<Registry, SearchModel> for SearchModel {
         </div>
         <div id="search-results-block",>
         { self.results_view() }
+        <button onclick=|_| SearchMessage::Route(RoutingMessage::NewSong),> { "Create song" } </button>
         </div>
         </div>
         }
@@ -122,7 +132,7 @@ impl SearchModel {
         html! {
           <div>
             { name }
-            <button onclick=|_| SearchMessage::PlayGame { song_id: id.clone(), song_url: url.clone() },> { "play" } </button>
+            <button onclick=|_| SearchMessage::Route(RoutingMessage::StartGame { song_id: id.clone(), song_url: url.clone() }),> { "play" } </button>
           </div>
         }
     }

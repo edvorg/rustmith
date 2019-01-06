@@ -18,7 +18,7 @@ pub enum RoutingMessage {
 }
 
 pub enum GameMessage {
-    Exit,
+    Route(RoutingMessage),
     ConnectMicrophone(MediaStream),
     TrackReceived(TrackLoadResult),
 }
@@ -82,9 +82,9 @@ impl Component<Registry> for GameModel {
 
     fn update(&mut self, msg: Self::Message, env: &mut Env<Registry, Self>) -> bool {
         match msg {
-            GameMessage::Exit => {
+            GameMessage::Route(message) => {
                 if let Some(callback) = &self.on_signal {
-                    callback.emit(RoutingMessage::ExitGame);
+                    callback.emit(message);
                 } else {
                     env.console.warn("Something is wrong, router not found");
                 }
@@ -122,7 +122,7 @@ impl Renderable<Registry, GameModel> for GameModel {
         html! {
           <div class="game",>
             <div class="game-view",>
-              <button id="exit-button", onclick = |_| GameMessage::Exit ,> { "exit" } </button>
+              <button id="exit-button", onclick = |_| GameMessage::Route(RoutingMessage::ExitGame),> { "exit" } </button>
               <RendererModel: track=&self.track, />
             </div>
             <div class="game-video",>

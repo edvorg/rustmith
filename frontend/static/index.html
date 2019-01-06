@@ -5,6 +5,13 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" name="viewport" />
     <link href="index.css" rel="stylesheet" type="text/css">
     <script src="rustmith_frontend.js"></script>
+    <script>
+        window.oncontextmenu = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        };
+    </script>
 </head>
 <body data-correlation-worker="rustmith_correlation_worker.js">
 <div id="app">

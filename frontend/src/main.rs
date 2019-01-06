@@ -3,6 +3,7 @@ extern crate yew;
 #[macro_use]
 extern crate stdweb;
 
+mod editor;
 mod fps;
 mod game;
 mod guitar_effects;
@@ -13,7 +14,6 @@ mod tuner;
 
 mod services {
     pub mod ext;
-    pub mod search;
     pub mod track;
     pub mod worker;
 }
@@ -26,7 +26,6 @@ mod graphics {
 }
 
 use crate::registry::Registry;
-use crate::services::search::StubSearchService;
 use crate::services::track::StubTrackService;
 use stdweb::web::document;
 use stdweb::web::INonElementParentNode;
@@ -39,13 +38,11 @@ fn main() {
     yew::initialize();
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
-    let search = StubSearchService::default();
     let audio = AudioService::default();
     let track = StubTrackService::default();
     let registry = Registry {
         console,
         timeout,
-        search,
         audio,
         track,
     };

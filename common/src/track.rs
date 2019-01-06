@@ -1,3 +1,4 @@
+use std::num::ParseIntError;
 use std::time::Duration;
 
 #[derive(PartialEq, Clone, Debug)]
@@ -40,13 +41,13 @@ impl Action {
     }
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct HandPosition {
     pub fret: u8,
     pub at: Duration,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Track {
     pub actions: Vec<Action>,
     pub hand_positions: Vec<HandPosition>,
@@ -58,6 +59,26 @@ pub struct TrackView<'a> {
 }
 
 impl Track {
+    pub fn parse(content: &str) -> Result<Track, ParseIntError> {
+        let mut actions: Vec<Action> = vec![];
+        let mut hand_positions: Vec<HandPosition> = vec![];
+        let lines: Vec<&str> = content.split('\n').collect();
+        for line in lines {
+            let segments: Vec<&str> = line.split(':').collect();
+            match segments[0] {
+                "fret" => actions.push(fret_action(
+                    segments[1].parse::<u64>()?,
+                    segments[2].parse::<u64>()?,
+                    segments[3].parse::<u8>()?,
+                    segments[4].parse::<u8>()?,
+                )),
+                "hand" => hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?)),
+                _ => (),
+            }
+        }
+        Result::Ok(Track { actions, hand_positions })
+    }
+
     pub fn view(&self, from: Duration) -> TrackView {
         let until = from + Duration::from_secs(60);
         let actions = self.actions.iter().filter(|a| from <= *a.starts_at() && *a.ends_at() <= until).collect();

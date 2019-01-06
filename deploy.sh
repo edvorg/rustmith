@@ -9,11 +9,10 @@ fi
 
 git checkout ${1}
 
-cargo clean
+# cargo clean
 cargo clippy -- -D warnings
-cargo web build -p rustmith_correlation_worker --target wasm32-unknown-unknown --release
-cp -f target/wasm32-unknown-unknown/release/rustmith_correlation_worker.js ./frontend/static/
-cp -f target/wasm32-unknown-unknown/release/rustmith_correlation_worker.wasm ./frontend/static/
+cargo test
+./build-worker.sh
 cargo web deploy -p rustmith_frontend --target wasm32-unknown-unknown --release
 
 git checkout gh-pages

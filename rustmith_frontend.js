@@ -19,13 +19,13 @@ if( typeof Rust === "undefined" ) {
         if( typeof window === "undefined" && typeof process === "object" ) {
             var fs = require( "fs" );
             var path = require( "path" );
-            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=cad1769f4c963b1415d63c6aa1b570a4" );
+            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=8945b472e04e0956af54dd1ce54d97b3" );
             var buffer = fs.readFileSync( wasm_path );
             var mod = new WebAssembly.Module( buffer );
             var wasm_instance = new WebAssembly.Instance( mod, instance.imports );
             return instance.initialize( wasm_instance );
         } else {
-            var file = fetch( "rustmith_frontend.wasm?hash=cad1769f4c963b1415d63c6aa1b570a4", {credentials: "same-origin"} );
+            var file = fetch( "rustmith_frontend.wasm?hash=8945b472e04e0956af54dd1ce54d97b3", {credentials: "same-origin"} );
 
             var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
                 ? WebAssembly.instantiateStreaming( file, instance.imports )

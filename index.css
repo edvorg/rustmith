@@ -95,6 +95,12 @@ body {
   height: 100%;
 }
 
+#editor-clip {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
 #canvas {
   width: 100%;
   height: 100%;
@@ -154,4 +160,103 @@ body {
 
 .game-tuner {
   grid-area: game-tuner;
+}
+
+.string-0 {
+  background-color: rgba(223, 105, 250, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-1 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(97, 246, 35, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-2 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(245, 167, 25, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-3 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(50, 216, 228, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-4 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(220, 217, 49, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-5 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(226, 47, 44, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.string-6 {
+  user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(100, 100, 255, 1);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  grid-template-areas: 'editor-controls  editor-video'
+                       'editor-fretboard editor-fretboard';
+}
+
+.editor-controls {
+  grid-area: editor-controls;
+}
+
+.editor-video {
+  grid-area: editor-video;
+}
+
+.editor-fretboard {
+  grid-area: editor-fretboard;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
 }

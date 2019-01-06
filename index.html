@@ -3,10 +3,17 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" name="viewport" />
-    <link href="index.css?hash=03e7feef96d50bbd753bd86cea9240a8" rel="stylesheet" type="text/css">
-    <script src="rustmith_frontend.js?hash=fba93e1490ddaba82e2e769f68819fc3"></script>
+    <link href="index.css?hash=8a5dbb1c1d9c12824e864580623887a4" rel="stylesheet" type="text/css">
+    <script src="rustmith_frontend.js?hash=cad1769f4c963b1415d63c6aa1b570a4"></script>
+    <script>
+        window.oncontextmenu = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        };
+    </script>
 </head>
-<body data-correlation-worker="rustmith_correlation_worker.js?hash=ee11c2410202f17ee159c132ccbc1a14">
+<body data-correlation-worker="rustmith_correlation_worker.js?hash=56dd355909b6c1d4228de3c0be8efda5">
 <div id="app">
 </div>
 </body>

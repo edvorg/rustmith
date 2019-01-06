@@ -19,13 +19,13 @@ if( typeof Rust === "undefined" ) {
         if( typeof window === "undefined" && typeof process === "object" ) {
             var fs = require( "fs" );
             var path = require( "path" );
-            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=fba93e1490ddaba82e2e769f68819fc3" );
+            var wasm_path = path.join( __dirname, "rustmith_frontend.wasm?hash=cad1769f4c963b1415d63c6aa1b570a4" );
             var buffer = fs.readFileSync( wasm_path );
             var mod = new WebAssembly.Module( buffer );
             var wasm_instance = new WebAssembly.Instance( mod, instance.imports );
             return instance.initialize( wasm_instance );
         } else {
-            var file = fetch( "rustmith_frontend.wasm?hash=fba93e1490ddaba82e2e769f68819fc3", {credentials: "same-origin"} );
+            var file = fetch( "rustmith_frontend.wasm?hash=cad1769f4c963b1415d63c6aa1b570a4", {credentials: "same-origin"} );
 
             var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
                 ? WebAssembly.instantiateStreaming( file, instance.imports )
@@ -557,6 +557,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             "__cargo_web_snippet_0da47658267a7497de743e1b0892f992ba6ca6ef": function($0, $1) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).type=($1);
             },
+            "__cargo_web_snippet_0dea113a333fb5e5b4a095e126af48297c78582c": function($0) {
+                Module.STDWEB_PRIVATE.from_js($0, (function(){return performance.now();})());
+            },
             "__cargo_web_snippet_0e54fd9c163fcf648ce0a395fde4500fd167a40b": function($0) {
                 var r = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (r instanceof DOMException) && (r.name === "InvalidCharacterError");
             },
@@ -631,6 +634,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_4f6879b658f383e2cfb7c29478f58f567e0c5939": function($0, $1, $2, $3) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).addEventListener(($2),($3));})());
+            },
+            "__cargo_web_snippet_4fd31c9e56d40b8642cf9e6f96fd6b570f355cea": function($0) {
+                $0 = Module.STDWEB_PRIVATE.to_js($0);console.error(($0));
             },
             "__cargo_web_snippet_513cc5b95412492d529556ccd01ecd4a671a4df8": function($0) {
                 var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "input") | 0;
@@ -712,6 +718,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_85b9ecbdb8513465b790546acfd0cd530441b8a4": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);($0).stopPropagation();
+            },
+            "__cargo_web_snippet_888b745991f21839297ff985ddd25fb66d630e67": function($0) {
+                var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof MouseEvent && o.type === "mousedown") | 0;
             },
             "__cargo_web_snippet_88fdef85e51047882d647a7f6f4a63bf786cb581": function($0) {
                 $0 = Module.STDWEB_PRIVATE.to_js($0);var handle=($0);clearTimeout(handle.timeout_id);handle.callback.drop();
@@ -802,6 +811,9 @@ Module.STDWEB_PRIVATE.acquire_tmp = function( dummy ) {
             },
             "__cargo_web_snippet_b4b6ba2a3fbf1e674918b44b1225c4b8eb934b6c": function($0, $1, $2) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);Module.STDWEB_PRIVATE.from_js($0, (function(){($1).connect(($2));})());
+            },
+            "__cargo_web_snippet_b6617e999209f5b71f18f29d9a24d764b1c63845": function($0) {
+                var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof MouseEvent && o.type === "mouseup") | 0;
             },
             "__cargo_web_snippet_bb618d13cbb219642bd219af99ee1519e5658d77": function($0, $1) {
                 $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).classList;})());

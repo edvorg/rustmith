@@ -3,14 +3,17 @@ extern crate yew;
 #[macro_use]
 extern crate stdweb;
 
-mod editor;
-mod fps;
-mod game;
-mod guitar_effects;
 mod registry;
-mod root;
-mod search;
-mod tuner;
+
+mod model {
+    pub mod editor;
+    pub mod fps;
+    pub mod game;
+    pub mod guitar_effects;
+    pub mod root;
+    pub mod search;
+    pub mod tuner;
+}
 
 mod services {
     pub mod ext;
@@ -23,6 +26,16 @@ mod graphics {
     pub mod objects;
     pub mod renderer;
     pub mod shaders;
+}
+
+mod view {
+    pub mod editor;
+    pub mod game;
+    pub mod fps;
+    pub mod guitar_effects;
+    pub mod root;
+    pub mod search;
+    pub mod tuner;
 }
 
 use crate::registry::Registry;
@@ -46,7 +59,7 @@ fn main() {
         audio,
         track,
     };
-    let app = App::<Registry, root::RootModel>::new(registry);
+    let app = App::<Registry, model::root::RootModel>::new(registry);
     app.mount(document().get_element_by_id("app").unwrap());
     yew::run_loop();
 }

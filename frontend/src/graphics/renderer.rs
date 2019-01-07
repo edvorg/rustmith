@@ -1,5 +1,5 @@
-use crate::fps::FpsModel;
-use crate::fps::FpsStats;
+use crate::model::fps::FpsModel;
+use crate::model::fps::FpsStats;
 use crate::graphics::camera::Camera;
 use crate::graphics::objects::make_fret;
 use crate::graphics::objects::make_object;

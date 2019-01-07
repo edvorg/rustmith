@@ -8,9 +8,6 @@ use stdweb::web::IElement;
 use stdweb::Value;
 use yew::prelude::Component;
 use yew::prelude::Env;
-use yew::prelude::Html;
-use yew::prelude::Renderable;
-use yew::services::Task;
 use yew_audio::AudioNode;
 use yew_audio::AudioProcessingEvent;
 use yew_audio::Destination;
@@ -18,6 +15,7 @@ use yew_audio::Gain;
 use yew_audio::MediaStreamSource;
 use yew_audio::Oscillator;
 use yew_audio::ScriptProcessor;
+use yew::services::Task;
 
 static SAMPLE_LENGTH_MILLIS: u32 = 100;
 
@@ -32,7 +30,7 @@ pub struct TunerModel {
     buffer: Vec<f64>,
     recording: bool,
     test_frequencies: Vec<Note>,
-    note: Option<Note>,
+    pub note: Option<Note>,
     recording_job: Option<Box<Task>>,
     playing: bool,
 }
@@ -189,41 +187,6 @@ impl Component<Registry> for TunerModel {
                 false
             }
             None => false,
-        }
-    }
-}
-
-impl Renderable<Registry, TunerModel> for TunerModel {
-    fn view(&self) -> Html<Registry, TunerModel> {
-        match &self.note {
-            Some(n) => {
-                let note_message = format!("Note: {}", n.name);
-                let note_frequency = format!("Frequency: {}hz", n.frequency);
-                html! {
-                    <div id="game-tuner",>
-                      <button id="note-button", onclick = |_| TunerMessage::ToggleE ,> { "Play E" } </button>
-                      <div>
-                        { "Tuner:" }
-                      </div>
-                      <div id="note-name",>
-                        { note_message }
-                      </div>
-                      <div id="frequency",>
-                        { note_frequency }
-                      </div>
-                    </div>
-                }
-            }
-            None => html! {
-                <div id="game-tuner",>
-                  <div>
-                    { "Tuner:" }
-                  </div>
-                  <div>
-                    { "Play a note" }
-                  </div>
-                </div>
-            },
         }
     }
 }

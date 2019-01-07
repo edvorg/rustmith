@@ -1,7 +1,7 @@
-use crate::editor;
-use crate::game;
+use crate::model::editor;
+use crate::model::game;
 use crate::registry::Registry;
-use crate::search;
+use crate::model::search;
 use yew::prelude::*;
 
 #[derive(Debug, PartialEq)]
@@ -18,7 +18,7 @@ pub enum RootMessage {
 }
 
 pub struct RootModel {
-    page: Page,
+    pub page: Page,
 }
 
 impl Component<Registry> for RootModel {
@@ -51,22 +51,6 @@ impl Component<Registry> for RootModel {
             RootMessage::EditorSignal(editor::RoutingMessage::ExitAndShowTrack(id)) => {
                 self.page = Page::Search { track_id: Some(id) };
                 true
-            }
-        }
-    }
-}
-
-impl Renderable<Registry, RootModel> for RootModel {
-    fn view(&self) -> Html<Registry, Self> {
-        match &self.page {
-            Page::Search { track_id } => {
-                html! { <search::SearchModel: onsignal=RootMessage::SearchSignal, trackname=track_id, /> }
-            }
-            Page::Editor => {
-                html! { <editor::EditorModel: onsignal=RootMessage::EditorSignal, /> }
-            }
-            Page::Game { song_id, song_url } => {
-                html! { <game::GameModel: onsignal=RootMessage::GameSignal, songid=Some(song_id.clone()), songurl=Some(song_url.clone()), /> }
             }
         }
     }

@@ -1,8 +1,6 @@
 use crate::registry::Registry;
 use yew::prelude::Component;
 use yew::prelude::Env;
-use yew::prelude::Html;
-use yew::prelude::Renderable;
 use yew_audio::AudioNode;
 use yew_audio::Destination;
 use yew_audio::MediaStreamSource;
@@ -48,24 +46,6 @@ impl Component<Registry> for GuitarEffectsModel {
                 true
             }
             None => false,
-        }
-    }
-}
-
-impl Renderable<Registry, GuitarEffectsModel> for GuitarEffectsModel {
-    fn view(&self) -> Html<Registry, GuitarEffectsModel> {
-        html! {
-            <div class="game-effects",>
-              <div>
-                { "Overdrive" }
-              </div>
-              <div>
-                { "Distoration" }
-              </div>
-              <div>
-                { "Compressor" }
-              </div>
-            </div>
         }
     }
 }

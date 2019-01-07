@@ -1,8 +1,6 @@
 use crate::registry::Registry;
 use yew::prelude::Component;
 use yew::prelude::Env;
-use yew::prelude::Html;
-use yew::prelude::Renderable;
 
 #[derive(Clone, PartialEq)]
 pub struct FpsStats {
@@ -47,7 +45,7 @@ impl FpsStats {
 }
 
 pub struct FpsModel {
-    fps: FpsStats,
+    pub fps: FpsStats,
 }
 
 #[derive(Clone, PartialEq)]
@@ -76,16 +74,5 @@ impl Component<Registry> for FpsModel {
     fn change(&mut self, props: Self::Properties, _env: &mut Env<Registry, Self>) -> bool {
         self.fps = props.fps;
         true
-    }
-}
-
-impl Renderable<Registry, FpsModel> for FpsModel {
-    fn view(&self) -> Html<Registry, FpsModel> {
-        html! {
-          <div>
-            <div id="fps",> { format!("avg. fps {}", &self.fps.average_fps()) } </div>
-            <div id="delta",> { format!("avg. delta (ms) {}", &self.fps.average_frame_time()) } </div>
-          </div>
-        }
     }
 }

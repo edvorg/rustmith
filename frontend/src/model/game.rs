@@ -1,10 +1,7 @@
-use crate::graphics::renderer::RendererModel;
-use crate::guitar_effects::GuitarEffectsModel;
 use crate::registry::Registry;
 use crate::services::ext::WindowExt;
 use crate::services::track::TrackLoadResult;
 use crate::services::track::TrackService;
-use crate::tuner::TunerModel;
 use rustmith_common::track::Track;
 use stdweb::web::window;
 use yew::prelude::*;
@@ -23,20 +20,20 @@ pub enum GameMessage {
     TrackReceived(TrackLoadResult),
 }
 
-struct GameStats {
-    notes_missed: u16,
-    notes_hit: u16,
-    mastery: u16,
+pub struct GameStats {
+    pub notes_missed: u16,
+    pub notes_hit: u16,
+    pub mastery: u16,
 }
 
 pub struct GameModel {
     on_signal: Option<Callback<RoutingMessage>>,
     #[allow(dead_code)]
     song_id: Option<String>,
-    song_url: Option<String>,
-    track: Option<Track>,
-    stats: GameStats,
-    mic: Option<MediaStreamSource>,
+    pub song_url: Option<String>,
+    pub track: Option<Track>,
+    pub stats: GameStats,
+    pub mic: Option<MediaStreamSource>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -114,39 +111,6 @@ impl Component<Registry> for GameModel {
             GameModel::fetch_track(env, song_id);
         }
         false
-    }
-}
-
-impl Renderable<Registry, GameModel> for GameModel {
-    fn view(&self) -> Html<Registry, GameModel> {
-        html! {
-          <div class="game",>
-            <div class="game-view",>
-              <button id="exit-button", onclick = |_| GameMessage::Route(RoutingMessage::ExitGame),> { "exit" } </button>
-              <RendererModel: track=&self.track, />
-            </div>
-            <div class="game-video",>
-              <iframe id="video-clip",
-                      src=&self.song_url.clone().unwrap(),
-                      frameborder="0",
-                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture",>
-              </iframe>
-            </div>
-            <div class="game-stats",>
-              <div>
-                { format!("Notes missed {}", &self.stats.notes_missed) }
-              </div>
-              <div>
-                { format!("Notes hit {}", &self.stats.notes_hit) }
-              </div>
-              <div>
-                { format!("Mastery {}%", &self.stats.mastery) }
-              </div>
-            </div>
-            <GuitarEffectsModel: mic=self.mic.clone(), />
-            <TunerModel: mic=self.mic.clone(), />
-          </div>
-        }
     }
 }
 

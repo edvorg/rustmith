@@ -139,7 +139,7 @@ impl Renderer {
         self.context
             .uniform_matrix4fv(Some(&self.program.proj_matrix_location), false, &proj_matrix.as_slice()[..]);
 
-        let hand_track_target = -f32::from(track_view.hand_positions[0].fret);
+        let hand_track_target = -f32::from(track_view.hand_positions.first().map(|p| p.fret).unwrap_or(0));
         if self.camera.is_none() {
             self.camera = Some(Camera { x: hand_track_target });
         }
@@ -207,6 +207,7 @@ impl Renderer {
             make_object(&context, make_fret(50.0 / 255.0, 216.0 / 255.0, 228.0 / 255.0)),
             make_object(&context, make_fret(220.0 / 255.0, 217.0 / 255.0, 49.0 / 255.0)),
             make_object(&context, make_fret(226.0 / 255.0, 47.0 / 255.0, 44.0 / 255.0)),
+            make_object(&context, make_fret(100.0 / 255.0, 100.0 / 255.0, 255.0 / 255.0)),
         ];
 
         Renderer {

@@ -65,14 +65,14 @@ impl Track {
         let lines: Vec<&str> = content.split('\n').collect();
         for line in lines {
             let segments: Vec<&str> = line.split(':').collect();
-            match segments[0] {
-                "fret" => actions.push(fret_action(
+            match segments.first() {
+                Some(&"fret") => actions.push(fret_action(
                     segments[1].parse::<u64>()?,
                     segments[2].parse::<u64>()?,
                     segments[3].parse::<u8>()?,
                     segments[4].parse::<u8>()?,
                 )),
-                "hand" => hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?)),
+                Some(&"hand") => hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?)),
                 _ => (),
             }
         }

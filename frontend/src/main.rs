@@ -39,7 +39,7 @@ mod view {
 }
 
 use crate::registry::Registry;
-use crate::services::track::StubTrackService;
+use crate::services::track::RemoteTrackService;
 use stdweb::web::document;
 use stdweb::web::INonElementParentNode;
 use yew::prelude::*;
@@ -52,7 +52,7 @@ fn main() {
     let console = ConsoleService::new();
     let timeout = TimeoutService::new();
     let audio = AudioService::default();
-    let track = StubTrackService::default();
+    let track = RemoteTrackService::default();
     let registry = Registry {
         console,
         timeout,

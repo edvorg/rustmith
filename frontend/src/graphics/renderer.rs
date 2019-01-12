@@ -13,7 +13,7 @@ use nalgebra::*;
 use rustmith_common::ext::DurationExt;
 use rustmith_common::track::Action;
 use rustmith_common::track::Fret;
-use rustmith_common::track::Track;
+use rustmith_common::track::TrackData;
 use rustmith_common::track::TrackView;
 use std::time::Duration;
 use stdweb::unstable::TryInto;
@@ -46,7 +46,7 @@ pub struct RendererModel {
     game_time: f64,
     fps: FpsStats,
     fps_snapshot: FpsStats,
-    track: Option<Track>,
+    track: Option<TrackData>,
 }
 
 pub enum RendererMessage {
@@ -56,7 +56,7 @@ pub enum RendererMessage {
 
 #[derive(Clone, PartialEq)]
 pub struct RendererProps {
-    pub track: Option<Track>,
+    pub track: Option<TrackData>,
 }
 
 impl Default for RendererProps {

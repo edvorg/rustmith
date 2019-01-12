@@ -1,8 +1,9 @@
 use crate::model::search::*;
 use yew::prelude::*;
 use crate::registry::Registry;
-use crate::services::track::SearchResponse;
-use crate::services::track::SearchItem;
+use rustmith_common::track::SearchItem;
+use rustmith_common::track::SearchResponse;
+use crate::services::track::make_youtube_url;
 
 impl Renderable<Registry, SearchModel> for SearchModel {
     fn view(&self) -> Html<Registry, SearchModel> {
@@ -37,7 +38,7 @@ impl Renderable<Registry, SearchModel> for SearchModel {
 impl SearchModel {
     fn item_view(&self, item: &SearchItem) -> Html<Registry, SearchModel> {
         let id = item.id.clone();
-        let url = item.url.clone();
+        let url = make_youtube_url(&item.youtube_id);
         let name = item.name.clone();
         html! {
           <div>

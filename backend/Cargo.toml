@@ -10,3 +10,7 @@ serde = "1.0.0"
 serde_json = "1.0.0"
 serde_derive = "1.0.0"
 rustmith_common = { path = "../common" }
+rocket = "0.4.0"
+rocket_contrib = "0.4.0"
+uuid = { version = "0.7.1", features = ["v4"] }
+redis = "0.9.1"

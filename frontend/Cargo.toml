@@ -16,3 +16,4 @@ serde_json = "1.0.0"
 serde_derive = "1.0.0"
 webgl-rendering-context = { git = "https://github.com/edvorg/webgl-rendering-context", rev = "778fee3" }
 rustmith_common = { path = "../common" }
+failure = "0.1"

@@ -1,9 +1,11 @@
 use crate::registry::Registry;
 use crate::services::track::make_youtube_url;
-use crate::services::track::TrackCreateResult;
-use crate::services::track::TrackService;
 use stdweb::unstable::TryInto;
 use yew::prelude::*;
+use rustmith_common::track::TrackCreateResult;
+use crate::services::track::TrackService;
+use rustmith_common::track::TrackData;
+use yew::services::fetch::FetchTask;
 
 fn now() -> f64 {
     js! (
@@ -40,6 +42,7 @@ pub struct EditorModel {
     pub recording: bool,
     pub recording_from: u64,
     pub song_url: Option<String>,
+    pub task: Option<FetchTask>,
 }
 
 #[derive(Clone, PartialEq)]
@@ -68,6 +71,7 @@ impl Component<Registry> for EditorModel {
             recording: false,
             recording_from: 0,
             song_url: None,
+            task: None,
         }
     }
 
@@ -95,10 +99,12 @@ impl Component<Registry> for EditorModel {
                 true
             }
             EditorMessage::Error(e) => {
+                self.task = None;
                 context.console.error(&format!("error {}", e));
                 false
             }
             EditorMessage::Route(m) => {
+                self.task = None;
                 context.console.log(&format!("{:?} {:?}", &self.song_youtube_id, &self.song_name));
                 if let Some(signal) = &self.onsignal {
                     signal.emit(m);
@@ -111,7 +117,9 @@ impl Component<Registry> for EditorModel {
                         TrackCreateResult::Created(id, _) => EditorMessage::Route(RoutingMessage::ExitAndShowTrack(id)),
                         TrackCreateResult::Error => EditorMessage::Error("create error"),
                     });
-                    context.track.create_track(name, youtube_id, content, callback);
+                    if let Ok(data) = TrackData::parse(content) {
+                        self.task = Some(context.track.create_track(name, youtube_id, data, callback));
+                    }
                     true
                 }
                 _ => {

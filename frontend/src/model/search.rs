@@ -1,7 +1,8 @@
 use crate::registry::Registry;
-use crate::services::track::SearchResponse;
 use crate::services::track::TrackService;
 use yew::prelude::*;
+use rustmith_common::track::SearchResponse;
+use yew::services::fetch::FetchTask;
 
 #[derive(Debug)]
 pub enum RoutingMessage {
@@ -27,6 +28,7 @@ pub struct SearchModel {
     pub search_str: String,
     pub search_results: Option<SearchResponse>,
     pub onsignal: Option<Callback<RoutingMessage>>,
+    task: Option<FetchTask>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -53,6 +55,7 @@ impl Component<Registry> for SearchModel {
             search_str: "".into(),
             search_results: None,
             onsignal: props.onsignal,
+            task: None,
         }
     }
 
@@ -65,15 +68,16 @@ impl Component<Registry> for SearchModel {
             SearchMessage::Search => {
                 self.search_results = None;
                 let callback = env.send_back(SearchMessage::ResultsReceived);
-                env.track.search(&self.search_str, None, callback);
+                self.task = Some(env.track.search(&self.search_str, None, callback));
                 true
             }
             SearchMessage::LoadMore { term, continuation_token } => {
                 let callback = env.send_back(SearchMessage::ResultsReceived);
-                env.track.search(&term, Some(&continuation_token), callback);
+                self.task = Some(env.track.search(&term, Some(&continuation_token), callback));
                 false
             }
             SearchMessage::ResultsReceived(r) => {
+                self.task = None;
                 let old_results = self.search_results.take();
                 let results = match old_results {
                     Some(l) => SearchResponse::combine(l, r),

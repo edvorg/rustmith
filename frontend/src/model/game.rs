@@ -1,12 +1,13 @@
 use crate::registry::Registry;
 use crate::services::ext::WindowExt;
-use crate::services::track::TrackLoadResult;
 use crate::services::track::TrackService;
-use rustmith_common::track::Track;
+use rustmith_common::track::TrackData;
 use stdweb::web::window;
 use yew::prelude::*;
 use yew_audio::MediaStream;
 use yew_audio::MediaStreamSource;
+use rustmith_common::track::TrackLoadResult;
+use yew::services::fetch::FetchTask;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {
@@ -31,9 +32,10 @@ pub struct GameModel {
     #[allow(dead_code)]
     song_id: Option<String>,
     pub song_url: Option<String>,
-    pub track: Option<Track>,
+    pub track: Option<TrackData>,
     pub stats: GameStats,
     pub mic: Option<MediaStreamSource>,
+    task: Option<FetchTask>,
 }
 
 #[derive(PartialEq, Clone)]
@@ -60,8 +62,9 @@ impl Component<Registry> for GameModel {
     fn create(props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating game model");
         GameModel::fetch_mic(env);
+        let mut task: Option<FetchTask> = None;
         if let Some(song_id) = &props.songid {
-            GameModel::fetch_track(env, song_id);
+            task = Some(GameModel::fetch_track(env, song_id));
         }
         GameModel {
             on_signal: props.onsignal,
@@ -74,6 +77,7 @@ impl Component<Registry> for GameModel {
                 mastery: 0,
             },
             mic: None,
+            task,
         }
     }
 
@@ -95,6 +99,7 @@ impl Component<Registry> for GameModel {
                 true
             }
             GameMessage::TrackReceived(TrackLoadResult::Loaded(track)) => {
+                self.task = None;
                 self.track = Some(track);
                 true
             }
@@ -108,16 +113,16 @@ impl Component<Registry> for GameModel {
 
     fn change(&mut self, props: Self::Properties, env: &mut Env<Registry, Self>) -> bool {
         if let Some(song_id) = &props.songid {
-            GameModel::fetch_track(env, song_id);
+            self.task = Some(GameModel::fetch_track(env, song_id));
         }
         false
     }
 }
 
 impl GameModel {
-    fn fetch_track(env: &mut Env<Registry, GameModel>, song_id: &str) {
+    fn fetch_track(env: &mut Env<Registry, GameModel>, song_id: &str) -> FetchTask {
         let on_song = env.send_back(GameMessage::TrackReceived);
-        env.track.load_track(song_id, on_song);
+        env.track.load_track(song_id, on_song)
     }
 }
 

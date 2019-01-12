@@ -1,7 +1,7 @@
 use std::num::ParseIntError;
 use std::time::Duration;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Fret {
     pub fret: u8,
     pub string: u8,
@@ -9,14 +9,14 @@ pub struct Fret {
     pub starts_at: Duration,
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub enum Interval {
     HalfStep,
     Step,
     DoubleStep,
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub enum Action {
     Fret(Fret),
     Slide(Fret, Fret),
@@ -41,16 +41,24 @@ impl Action {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct HandPosition {
     pub fret: u8,
     pub at: Duration,
 }
 
-#[derive(PartialEq, Clone, Debug)]
-pub struct Track {
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+pub struct TrackData {
     pub actions: Vec<Action>,
     pub hand_positions: Vec<HandPosition>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+pub struct Track {
+    pub id: String,
+    pub name: String,
+    pub youtube_id: String,
+    pub data: TrackData,
 }
 
 pub struct TrackView<'a> {
@@ -58,8 +66,8 @@ pub struct TrackView<'a> {
     pub hand_positions: Vec<&'a HandPosition>,
 }
 
-impl Track {
-    pub fn parse(content: &str) -> Result<Track, ParseIntError> {
+impl TrackData {
+    pub fn parse(content: &str) -> Result<TrackData, ParseIntError> {
         let mut actions: Vec<Action> = vec![];
         let mut hand_positions: Vec<HandPosition> = vec![];
         let lines: Vec<&str> = content.split('\n').collect();
@@ -72,11 +80,13 @@ impl Track {
                     segments[3].parse::<u8>()?,
                     segments[4].parse::<u8>()?,
                 )),
-                Some(&"hand") => hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?)),
+                Some(&"hand") => {
+                    hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?))
+                }
                 _ => (),
             }
         }
-        Result::Ok(Track { actions, hand_positions })
+        Result::Ok(TrackData { actions, hand_positions })
     }
 
     pub fn view(&self, from: Duration) -> TrackView {
@@ -101,4 +111,75 @@ pub fn hand_position(at: u64, fret: u8) -> HandPosition {
         fret,
         at: Duration::from_millis(at),
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SearchItem {
+    pub name: String,
+    pub id: String,
+    pub youtube_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum SearchResponse {
+    Result {
+        term: String,
+        items: Vec<SearchItem>,
+        continuation_token: Option<String>,
+    },
+    Error,
+}
+
+impl SearchResponse {
+    pub fn combine(left: SearchResponse, right: SearchResponse) -> SearchResponse {
+        match (left, right) {
+            (SearchResponse::Error, _) => SearchResponse::Error,
+            (l @ SearchResponse::Result { .. }, SearchResponse::Error) => l,
+            (
+                SearchResponse::Result {
+                    term: left_term,
+                    items: mut left_items,
+                    ..
+                },
+                SearchResponse::Result {
+                    term: right_term,
+                    items: mut right_items,
+                    continuation_token: right_token,
+                },
+            ) => {
+                if left_term == right_term {
+                    left_items.append(right_items.as_mut());
+                    SearchResponse::Result {
+                        term: left_term,
+                        items: left_items,
+                        continuation_token: right_token,
+                    }
+                } else {
+                    SearchResponse::Result {
+                        term: right_term,
+                        items: right_items,
+                        continuation_token: right_token,
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum TrackLoadResult {
+    Loaded(TrackData),
+    Error,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum TrackCreateResult {
+    Created(String, Track),
+    Error,
+}
+
+#[derive(Debug)]
+pub enum ApiError {
+    DatabaseError,
+    InvalidFormatError,
 }

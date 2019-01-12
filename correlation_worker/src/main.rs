@@ -5,8 +5,7 @@ use rustmith_common::note::Note;
 use stdweb::unstable::TryInto;
 use stdweb::Value;
 
-fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64) -> Vec<Vec<f64>> {
-    let test_frequencies: Vec<Note> = Note::make_test_frequencies();
+fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64, test_frequencies: &Vec<Note>) -> Vec<Vec<f64>> {
     // 2pi * frequency gives the appropriate period to sine.
     // timeseries index / sample_rate gives the appropriate time coordinate.
     let scale_factor = 2.0 * std::f64::consts::PI / sample_rate;
@@ -26,10 +25,11 @@ fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64) -> Vec<Vec<f64>>
 }
 
 fn main() {
-    let callback = |timeseries: Value, sample_rate: Value| {
+    let test_frequencies: Vec<Note> = Note::make_test_frequencies();
+    let callback = move |timeseries: Value, sample_rate: Value| {
         let timeseries: Vec<f64> = timeseries.try_into().unwrap();
         let sample_rate: f64 = sample_rate.try_into().unwrap();
-        compute_correlations(timeseries, sample_rate)
+        compute_correlations(timeseries, sample_rate, &test_frequencies)
     };
     js! {
       self.onmessage = function(event) {

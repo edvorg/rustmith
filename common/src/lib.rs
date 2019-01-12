@@ -11,7 +11,7 @@ pub mod track;
 #[cfg(test)]
 mod tests {
     use crate::track::fret_action;
-    use crate::track::Track;
+    use crate::track::TrackData;
     use std::time::Duration;
 
     #[test]
@@ -24,7 +24,7 @@ mod tests {
             fret_action(4400, 5400, 10, 3),
         ];
         let hand_positions = vec![];
-        let track = Track { actions, hand_positions };
+        let track = TrackData { actions, hand_positions };
         assert_eq!(0, track.view(Duration::from_millis(4500)).actions.len());
         assert_eq!(1, track.view(Duration::from_millis(3300)).actions.len());
         assert_eq!(2, track.view(Duration::from_millis(2900)).actions.len());

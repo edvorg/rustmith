@@ -31,7 +31,7 @@ pub struct TunerModel {
     recording: bool,
     test_frequencies: Vec<Note>,
     pub note: Option<Note>,
-    recording_job: Option<Box<Task>>,
+    recording_job: Option<Box<dyn Task>>,
     playing: bool,
 }
 

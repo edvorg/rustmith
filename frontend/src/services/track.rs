@@ -41,10 +41,10 @@ impl TrackService for RemoteTrackService {
             .body::<Json<&Track>>(Json(&track).into())
             .expect("Failed to build request.");
         self.http.fetch(request, Callback::from(move |response: Response<Json<Result<TrackCreateResult, Error>>>| {
-            let (meta, Json(body)) = response.into_parts();
+            let (_meta, Json(body)) = response.into_parts();
             match body {
                 Ok(r) => callback.emit(r),
-                Err(e) => callback.emit(TrackCreateResult::Error),
+                Err(_e) => callback.emit(TrackCreateResult::Error),
             }
         }))
     }
@@ -55,21 +55,21 @@ impl TrackService for RemoteTrackService {
             .body(Nothing)
             .expect("Failed to build request.");
         self.http.fetch(request, Callback::from(move |response: Response<Json<Result<TrackLoadResult, Error>>>| {
-            let (meta, Json(body)) = response.into_parts();
+            let (_meta, Json(body)) = response.into_parts();
             match body {
                 Ok(r) => callback.emit(r),
-                Err(e) => callback.emit(TrackLoadResult::Error),
+                Err(_e) => callback.emit(TrackLoadResult::Error),
             }
         }))
     }
 
-    fn search(&mut self, term: &str, continuation_token: Option<&String>, callback: Callback<SearchResponse>) -> FetchTask {
+    fn search(&mut self, term: &str, _continuation_token: Option<&String>, callback: Callback<SearchResponse>) -> FetchTask {
         let request = Request::get(&format!("http://localhost:8000/tracks?term={}", term))
             .header("Content-Type", "application/json")
             .body(Nothing)
             .expect("Failed to build request.");
         self.http.fetch(request, Callback::from(move |response: Response<Json<Result<SearchResponse, Error>>>| {
-            let (meta, Json(body)) = response.into_parts();
+            let (_meta, Json(body)) = response.into_parts();
             match body {
                 Ok(r) => callback.emit(r),
                 Err(e) => {

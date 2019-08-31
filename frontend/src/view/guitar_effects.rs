@@ -1,6 +1,6 @@
 use crate::model::guitar_effects::*;
-use yew::prelude::*;
 use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, GuitarEffectsModel> for GuitarEffectsModel {
     fn view(&self) -> Html<Registry, GuitarEffectsModel> {

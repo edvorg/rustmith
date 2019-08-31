@@ -1,9 +1,9 @@
-use crate::model::root::*;
-use yew::prelude::*;
-use crate::registry::Registry;
-use crate::model::search;
 use crate::model::editor;
 use crate::model::game;
+use crate::model::root::*;
+use crate::model::search;
+use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, RootModel> for RootModel {
     fn view(&self) -> Html<Registry, Self> {

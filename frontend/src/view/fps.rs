@@ -1,6 +1,6 @@
 use crate::model::fps::*;
-use yew::prelude::*;
 use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, FpsModel> for FpsModel {
     fn view(&self) -> Html<Registry, FpsModel> {

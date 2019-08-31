@@ -30,8 +30,8 @@ mod graphics {
 
 mod view {
     pub mod editor;
-    pub mod game;
     pub mod fps;
+    pub mod game;
     pub mod guitar_effects;
     pub mod root;
     pub mod search;

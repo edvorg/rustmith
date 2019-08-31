@@ -1,11 +1,11 @@
-use crate::model::fps::FpsModel;
-use crate::model::fps::FpsStats;
 use crate::graphics::camera::Camera;
 use crate::graphics::objects::make_fret;
 use crate::graphics::objects::make_object;
 use crate::graphics::objects::Object;
 use crate::graphics::shaders::make_program;
 use crate::graphics::shaders::Program;
+use crate::model::fps::FpsModel;
+use crate::model::fps::FpsStats;
 use crate::registry::Registry;
 use crate::services::ext::CanvasElementExt;
 use crate::services::ext::WebGLRenderingContextExt;

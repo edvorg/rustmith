@@ -8,6 +8,7 @@ use stdweb::web::IElement;
 use stdweb::Value;
 use yew::prelude::Component;
 use yew::prelude::Env;
+use yew::services::Task;
 use yew_audio::AudioNode;
 use yew_audio::AudioProcessingEvent;
 use yew_audio::Destination;
@@ -15,7 +16,6 @@ use yew_audio::Gain;
 use yew_audio::MediaStreamSource;
 use yew_audio::Oscillator;
 use yew_audio::ScriptProcessor;
-use yew::services::Task;
 
 static SAMPLE_LENGTH_MILLIS: u32 = 100;
 

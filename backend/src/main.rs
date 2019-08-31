@@ -2,21 +2,21 @@
 
 #[macro_use]
 extern crate rocket;
-extern crate rocket_contrib;
 extern crate redis;
+extern crate rocket_contrib;
 extern crate uuid;
 
-use rocket_contrib::json::Json;
-use rocket_contrib::serve::StaticFiles;
-use rustmith_common::track::*;
+use redis::Commands;
+use redis::RedisError;
+use rocket::http::Status;
 use rocket::response::Responder;
 use rocket::Request;
 use rocket::Response;
-use rocket::http::Status;
-use redis::RedisError;
-use uuid::Uuid;
-use redis::Commands;
+use rocket_contrib::json::Json;
+use rocket_contrib::serve::StaticFiles;
+use rustmith_common::track::*;
 use std::num::ParseIntError;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -28,7 +28,7 @@ impl<'a> Responder<'a> for ApiError {
     fn respond_to(self, _request: &Request) -> Result<Response<'a>, Status> {
         Result::Err(Status {
             code: 501,
-            reason: "Api error"
+            reason: "Api error",
         })
     }
 }
@@ -81,7 +81,7 @@ fn search_track(term: String) -> Result<Json<SearchResponse>, ApiError> {
     Result::Ok(Json(SearchResponse::Result {
         term,
         items,
-        continuation_token: None
+        continuation_token: None,
     }))
 }
 
@@ -97,7 +97,5 @@ fn get_track(id: String) -> Result<Json<TrackLoadResult>, ApiError> {
 fn main() {
     let static_files = StaticFiles::from("./target/deploy");
     let routes = routes![post_track, search_track, get_track];
-    rocket::ignite()
-        .mount("/", routes)
-        .mount("/", static_files).launch();
+    rocket::ignite().mount("/", routes).mount("/", static_files).launch();
 }

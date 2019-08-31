@@ -1,9 +1,9 @@
-use crate::model::game::*;
-use yew::prelude::*;
-use crate::registry::Registry;
 use crate::graphics::renderer::RendererModel;
-use crate::model::tuner::TunerModel;
+use crate::model::game::*;
 use crate::model::guitar_effects::GuitarEffectsModel;
+use crate::model::tuner::TunerModel;
+use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, GameModel> for GameModel {
     fn view(&self) -> Html<Registry, GameModel> {

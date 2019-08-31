@@ -1,7 +1,7 @@
 use crate::model::editor;
 use crate::model::game;
-use crate::registry::Registry;
 use crate::model::search;
+use crate::registry::Registry;
 use yew::prelude::*;
 
 #[derive(Debug, PartialEq)]
@@ -27,7 +27,9 @@ impl Component<Registry> for RootModel {
 
     fn create(_props: Self::Properties, env: &mut Env<Registry, Self>) -> Self {
         env.console.log("creating root model");
-        RootModel { page: Page::Search { track_id: None } }
+        RootModel {
+            page: Page::Search { track_id: None },
+        }
     }
 
     fn update(&mut self, msg: Self::Message, _env: &mut Env<Registry, Self>) -> bool {

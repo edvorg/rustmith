@@ -1,6 +1,6 @@
 use crate::model::tuner::*;
-use yew::prelude::*;
 use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, TunerModel> for TunerModel {
     fn view(&self) -> Html<Registry, TunerModel> {

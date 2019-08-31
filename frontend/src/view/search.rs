@@ -1,9 +1,9 @@
 use crate::model::search::*;
-use yew::prelude::*;
 use crate::registry::Registry;
+use crate::services::track::make_youtube_url;
 use rustmith_common::track::SearchItem;
 use rustmith_common::track::SearchResponse;
-use crate::services::track::make_youtube_url;
+use yew::prelude::*;
 
 impl Renderable<Registry, SearchModel> for SearchModel {
     fn view(&self) -> Html<Registry, SearchModel> {
@@ -56,10 +56,10 @@ impl SearchModel {
                 }
             }
             Some(SearchResponse::Result {
-                     term,
-                     items,
-                     continuation_token: Some(continuation_token),
-                 }) => {
+                term,
+                items,
+                continuation_token: Some(continuation_token),
+            }) => {
                 let term = term.clone();
                 let continuation_token = continuation_token.clone();
                 html! {

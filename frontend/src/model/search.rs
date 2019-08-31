@@ -1,7 +1,7 @@
 use crate::registry::Registry;
 use crate::services::track::TrackService;
-use yew::prelude::*;
 use rustmith_common::track::SearchResponse;
+use yew::prelude::*;
 use yew::services::fetch::FetchTask;
 
 #[derive(Debug)]

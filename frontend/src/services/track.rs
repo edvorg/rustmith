@@ -1,16 +1,16 @@
 use failure::Error;
-use rustmith_common::track::TrackData;
-use yew::prelude::Callback;
-use rustmith_common::track::TrackLoadResult;
-use rustmith_common::track::TrackCreateResult;
 use rustmith_common::track::SearchResponse;
 use rustmith_common::track::Track;
+use rustmith_common::track::TrackCreateResult;
+use rustmith_common::track::TrackData;
+use rustmith_common::track::TrackLoadResult;
+use yew::format::Json;
+use yew::format::Nothing;
+use yew::prelude::Callback;
 use yew::services::fetch::FetchService;
 use yew::services::fetch::FetchTask;
 use yew::services::fetch::Request;
-use yew::format::Json;
 use yew::services::fetch::Response;
-use yew::format::Nothing;
 
 pub trait TrackService {
     fn create_track(&mut self, name: &str, youtube_id: &str, data: TrackData, callback: Callback<TrackCreateResult>) -> FetchTask;
@@ -40,13 +40,16 @@ impl TrackService for RemoteTrackService {
             .header("Content-Type", "application/json")
             .body::<Json<&Track>>(Json(&track))
             .expect("Failed to build request.");
-        self.http.fetch(request, Callback::from(move |response: Response<Json<Result<TrackCreateResult, Error>>>| {
-            let (_meta, Json(body)) = response.into_parts();
-            match body {
-                Ok(r) => callback.emit(r),
-                Err(_e) => callback.emit(TrackCreateResult::Error),
-            }
-        }))
+        self.http.fetch(
+            request,
+            Callback::from(move |response: Response<Json<Result<TrackCreateResult, Error>>>| {
+                let (_meta, Json(body)) = response.into_parts();
+                match body {
+                    Ok(r) => callback.emit(r),
+                    Err(_e) => callback.emit(TrackCreateResult::Error),
+                }
+            }),
+        )
     }
 
     fn load_track(&mut self, track_id: &str, callback: Callback<TrackLoadResult>) -> FetchTask {
@@ -54,13 +57,16 @@ impl TrackService for RemoteTrackService {
             .header("Content-Type", "application/json")
             .body(Nothing)
             .expect("Failed to build request.");
-        self.http.fetch(request, Callback::from(move |response: Response<Json<Result<TrackLoadResult, Error>>>| {
-            let (_meta, Json(body)) = response.into_parts();
-            match body {
-                Ok(r) => callback.emit(r),
-                Err(_e) => callback.emit(TrackLoadResult::Error),
-            }
-        }))
+        self.http.fetch(
+            request,
+            Callback::from(move |response: Response<Json<Result<TrackLoadResult, Error>>>| {
+                let (_meta, Json(body)) = response.into_parts();
+                match body {
+                    Ok(r) => callback.emit(r),
+                    Err(_e) => callback.emit(TrackLoadResult::Error),
+                }
+            }),
+        )
     }
 
     fn search(&mut self, term: &str, _continuation_token: Option<&String>, callback: Callback<SearchResponse>) -> FetchTask {
@@ -68,26 +74,27 @@ impl TrackService for RemoteTrackService {
             .header("Content-Type", "application/json")
             .body(Nothing)
             .expect("Failed to build request.");
-        self.http.fetch(request, Callback::from(move |response: Response<Json<Result<SearchResponse, Error>>>| {
-            let (_meta, Json(body)) = response.into_parts();
-            match body {
-                Ok(r) => callback.emit(r),
-                Err(e) => {
-                    js! {
-                      console.log(@{format!("{:?}", e)});
+        self.http.fetch(
+            request,
+            Callback::from(move |response: Response<Json<Result<SearchResponse, Error>>>| {
+                let (_meta, Json(body)) = response.into_parts();
+                match body {
+                    Ok(r) => callback.emit(r),
+                    Err(e) => {
+                        js! {
+                          console.log(@{format!("{:?}", e)});
+                        }
+                        callback.emit(SearchResponse::Error)
                     }
-                    callback.emit(SearchResponse::Error)
-                },
-            }
-        }))
+                }
+            }),
+        )
     }
 }
 
 impl Default for RemoteTrackService {
     fn default() -> Self {
-        RemoteTrackService {
-            http: FetchService::new(),
-        }
+        RemoteTrackService { http: FetchService::new() }
     }
 }
 

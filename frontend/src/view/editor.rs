@@ -1,6 +1,6 @@
 use crate::model::editor::*;
-use yew::prelude::*;
 use crate::registry::Registry;
+use yew::prelude::*;
 
 impl Renderable<Registry, EditorModel> for EditorModel {
     fn view(&self) -> Html<Registry, EditorModel> {

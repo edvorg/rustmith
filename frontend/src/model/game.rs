@@ -2,12 +2,12 @@ use crate::registry::Registry;
 use crate::services::ext::WindowExt;
 use crate::services::track::TrackService;
 use rustmith_common::track::TrackData;
+use rustmith_common::track::TrackLoadResult;
 use stdweb::web::window;
 use yew::prelude::*;
+use yew::services::fetch::FetchTask;
 use yew_audio::MediaStream;
 use yew_audio::MediaStreamSource;
-use rustmith_common::track::TrackLoadResult;
-use yew::services::fetch::FetchTask;
 
 /// this type of message is used for inter-component communication
 pub enum RoutingMessage {

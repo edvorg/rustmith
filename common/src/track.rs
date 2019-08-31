@@ -80,9 +80,7 @@ impl TrackData {
                     segments[3].parse::<u8>()?,
                     segments[4].parse::<u8>()?,
                 )),
-                Some(&"hand") => {
-                    hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?))
-                }
+                Some(&"hand") => hand_positions.push(hand_position(segments[1].parse::<u64>()?, segments[2].parse::<u8>()?)),
                 _ => (),
             }
         }

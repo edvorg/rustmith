@@ -22,7 +22,7 @@ During development:
 ./build-worker.sh
 
 # build frontend
-cargo web start -p rustmith_frontend --auto-reload
+cargo web start -p rustmith_frontend --auto-reload --release
 
 # open localhost:8000 in browser
 ```

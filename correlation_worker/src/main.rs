@@ -5,12 +5,12 @@ use rustmith_common::note::Note;
 use stdweb::unstable::TryInto;
 use stdweb::Value;
 
-fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64, test_frequencies: &Vec<Note>) -> Vec<Vec<f64>> {
+fn compute_correlations(timeseries: Vec<f64>, sample_rate: f64, test_frequencies: &[Note]) -> Vec<Vec<f64>> {
     // 2pi * frequency gives the appropriate period to sine.
     // timeseries index / sample_rate gives the appropriate time coordinate.
     let scale_factor = 2.0 * std::f64::consts::PI / sample_rate;
     test_frequencies
-        .into_iter()
+        .iter()
         .map(|f| {
             let frequency = f.frequency;
             // Represent a complex number as a length-2 array [ real, imaginary ].

@@ -58,7 +58,7 @@ fn post_track(mut track: Json<Track>) -> Result<Json<TrackCreateResult>, ApiErro
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let con = client.get_connection()?;
     let serialized = serde_json::to_string(&track.0)?;
-    let _: () = con.hset("tracks", &id.to_string(), serialized)?;
+    con.hset("tracks", &id.to_string(), serialized)?;
     Result::Ok(Json(TrackCreateResult::Created(id.to_string(), track.0)))
 }
 

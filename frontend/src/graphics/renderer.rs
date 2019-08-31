@@ -207,7 +207,7 @@ impl Renderer {
             make_object(&context, make_fret(50.0 / 255.0, 216.0 / 255.0, 228.0 / 255.0)),
             make_object(&context, make_fret(220.0 / 255.0, 217.0 / 255.0, 49.0 / 255.0)),
             make_object(&context, make_fret(226.0 / 255.0, 47.0 / 255.0, 44.0 / 255.0)),
-            make_object(&context, make_fret(100.0 / 255.0, 100.0 / 255.0, 255.0 / 255.0)),
+            make_object(&context, make_fret(100.0 / 255.0, 100.0 / 255.0, 1.0)),
         ];
 
         Renderer {

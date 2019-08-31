@@ -38,7 +38,7 @@ impl TrackService for RemoteTrackService {
         };
         let request = Request::post("http://localhost:8000/tracks")
             .header("Content-Type", "application/json")
-            .body::<Json<&Track>>(Json(&track).into())
+            .body::<Json<&Track>>(Json(&track))
             .expect("Failed to build request.");
         self.http.fetch(request, Callback::from(move |response: Response<Json<Result<TrackCreateResult, Error>>>| {
             let (_meta, Json(body)) = response.into_parts();
